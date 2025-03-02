@@ -4,25 +4,25 @@
   "version": "${version}",
 
   "name": "${name}",
-  "description": "Template for my fabric mods",
+  "description": "A prometheus exporter mod for Technical Minecraft",
   "authors": [
     "Fallen_Breath"
   ],
   "contact": {
     "homepage": "https://modrinth.com",
-    "sources": "https://github.com/Fallen-Breath/fabric-mod-template"
+    "sources": "https://github.com/Fallen-Breath/tmc_exporter"
   },
 
-  "icon": "assets/template_mod/icon.png",
+  "icon": "assets/tmcexporter/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.fallenbreath.template_mod.TemplateMod"
+      "me.fallenbreath.tmcexporter.TmcExporterMod"
     ]
   },
   "mixins": [
-    "template_mod.mixins.json"
+    "tmcexporter.mixins.json"
   ],
 
   "depends": {
