@@ -1,5 +1,6 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.hierynomus.license'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
@@ -20,6 +21,22 @@ configurations {
 	modRuntimeOnly.exclude group: 'net.fabricmc', module: 'fabric-loader'
 }
 
+def nettyVersions = [
+		12104: "4.1.115.Final",
+		12002: "4.1.97.Final",
+		11903: "4.1.82.Final",
+		11900: "4.1.77.Final",
+]
+// null means we don't need it
+// In old MC versions, MC depends on "io.netty:netty-all" which includes everything
+String nettyVersion = null
+for (final def e in nettyVersions) {
+    if (mcVersion >= e.key) {
+        nettyVersion = e.value
+        break
+    }
+}
+
 dependencies {
 	// loom
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -36,6 +53,14 @@ dependencies {
 //	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)))
 	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
 	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+
+	// libs
+	shadow(implementation("io.prometheus:prometheus-metrics-core:${project.prometheus_libs_version}"))
+    if (nettyVersion != null) {
+        shadow(implementation("io.netty:netty-codec-http:${nettyVersion}")) {
+            transitive = false
+        }
+    }
 }
 
 String MIXIN_CONFIG_PATH = 'tmcexporter.mixins.json'
@@ -54,9 +79,10 @@ JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 
 loom {
 	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
-	runConfigs.configureEach {
-		// to make sure it generates all "Minecraft Client (:subproject_name)" applications
+	runConfigs.server {
 		ideConfigGenerated = true
+	}
+	runConfigs.configureEach {
 		runDir '../../run'
 		vmArgs commonVmArgs
 	}
@@ -68,6 +94,24 @@ loom {
 			ideConfigGenerated false
 		}
 	}
+}
+
+shadowJar {
+	configurations = [project.configurations.shadow]
+	exclude("META-INF")
+	archiveClassifier.set('shadow')
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+tasks.withType(ShadowJar).configureEach {
+	enableRelocation true
+	relocationPrefix 'me.fallenbreath.tmcexporter.libs'
+}
+
+remapJar {
+	dependsOn(shadowJar)
+	mustRunAfter(shadowJar)
+	inputFile = shadowJar.archiveFile
 }
 
 String modVersionSuffix = ''
@@ -84,10 +128,10 @@ String fullModVersion = project.mod_version + modVersionSuffix
 String fullProjectVersion, fullArtifactVersion
 
 // Example version values:
-//   project.mod_version     1.0.3                      (the base mod version)
-//   modVersionSuffix        +build.88                  (use github action build number if possible)
+//   project.mod_version     1.0.3		      (the base mod version)
+//   modVersionSuffix	+build.88		  (use github action build number if possible)
 //   artifactVersionSuffix   -SNAPSHOT
-//   fullModVersion          1.0.3+build.88             (the actual mod version to use in the mod)
+//   fullModVersion	  1.0.3+build.88	     (the actual mod version to use in the mod)
 //   fullProjectVersion      v1.0.3-mc1.15.2+build.88   (in build output jar name)
 //   fullArtifactVersion     1.0.3-mc1.15.2-SNAPSHOT    (maven artifact version)
 

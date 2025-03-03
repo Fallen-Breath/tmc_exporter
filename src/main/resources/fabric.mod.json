@@ -15,7 +15,7 @@
 
   "icon": "assets/tmcexporter/icon.png",
 
-  "environment": "*",
+  "environment": "server",
   "entrypoints": {
     "main": [
       "me.fallenbreath.tmcexporter.TmcExporterMod"
