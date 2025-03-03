@@ -21,25 +21,27 @@
 package me.fallenbreath.tmcexporter.network;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
 import me.fallenbreath.tmcexporter.TmcExporterMod;
+import me.fallenbreath.tmcexporter.http.HttpRequestHandler;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class TmcExporterPacketHandler extends ByteToMessageDecoder
 {
 	private final VanillaHandlerRestorer vanillaHandlerRestorer;
+	private final HttpRequestHandler httpRequestHandler;
 
 	public TmcExporterPacketHandler(VanillaHandlerRestorer vanillaHandlerRestorer)
 	{
 		this.vanillaHandlerRestorer = vanillaHandlerRestorer;
+		this.httpRequestHandler = new HttpRequestHandler();
 	}
 
 	private static boolean startsWith(byte[] source, byte[] prefix)
@@ -75,7 +77,7 @@ public class TmcExporterPacketHandler extends ByteToMessageDecoder
 		}
 
 		// Case 3: It's what we what
-		this.setupForHttpRequest(ctx, byteBuf);
+		this.setupForHttp(ctx, byteBuf);
 	}
 
 	@Override
@@ -85,39 +87,28 @@ public class TmcExporterPacketHandler extends ByteToMessageDecoder
 		ctx.channel().close();
 	}
 
-	private void setupForHttpRequest(ChannelHandlerContext ctx, ByteBuf byteBuf)
+	private void setupForHttp(ChannelHandlerContext ctx, ByteBuf byteBuf)
 	{
-		TmcExporterMod.LOGGER.info("setupForHttpRequest");
 		ctx.pipeline().remove(this);
-		ctx.pipeline().addLast(new HttpRequestDecoder());
-		ctx.pipeline().addLast(new HttpResponseEncoder());
-		ctx.pipeline().addLast(new HttpRequestHandler());
-		ctx.pipeline().fireChannelRead(byteBuf.retain());
-	}
 
-	private static class HttpRequestHandler extends SimpleChannelInboundHandler<Object>
-	{
-		@Override
-		protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception
+		ctx.pipeline().addLast("tmce_http_codec", new HttpServerCodec());
+		ctx.pipeline().addLast("tmce_http_aggregator", new HttpObjectAggregator(8192));
+		ctx.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpRequest>()
 		{
-			if (msg instanceof HttpRequest request)
+			@Override
+			protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request)
 			{
-				TmcExporterMod.LOGGER.info("Received request: {} {}", request.method(), request.uri());
-			}
-			if (msg instanceof HttpContent content)
-			{
-				TmcExporterMod.LOGGER.info("Content: {}", content.content().toString(CharsetUtil.UTF_8));
+				FullHttpResponse response = httpRequestHandler.process(request);
 
-				DefaultFullHttpResponse response = new DefaultFullHttpResponse(
-						HttpVersion.HTTP_1_1,
-						HttpResponseStatus.OK,
-						Unpooled.copiedBuffer("Hello, Client!", CharsetUtil.UTF_8)
-				);
-				response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+				response.headers().set(HttpHeaderNames.SERVER, "TMC Exporter");
+				response.headers().set(HttpHeaderNames.DATE, new Date());
 				response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+				response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
 
 				ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 			}
-		}
+		});
+
+		ctx.pipeline().fireChannelRead(byteBuf.retain());
 	}
 }

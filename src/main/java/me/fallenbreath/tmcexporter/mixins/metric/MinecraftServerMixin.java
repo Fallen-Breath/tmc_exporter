@@ -18,12 +18,32 @@
  * along with TMC Exporter.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.fallenbreath.tmcexporter.mixins;
+package me.fallenbreath.tmcexporter.mixins.metric;
 
+import me.fallenbreath.tmcexporter.metrics.ServerMetrics;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerManager;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin
 {
+	@Shadow private PlayerManager playerManager;
+
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void onServerTick(CallbackInfo ci)
+	{
+		ServerMetrics.SERVER_TICK.inc();
+		ServerMetrics.PLAYER_COUNT.set(this.playerManager.getCurrentPlayerCount());
+	}
+
+	@Inject(method = "tickWorlds", at = @At("TAIL"))
+	private void onGameTick(CallbackInfo ci)
+	{
+		ServerMetrics.GAME_TICK.inc();
+	}
 }

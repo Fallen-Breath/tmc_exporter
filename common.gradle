@@ -56,6 +56,7 @@ dependencies {
 
 	// libs
 	shadow(implementation("io.prometheus:prometheus-metrics-core:${project.prometheus_libs_version}"))
+	shadow(implementation("io.prometheus:prometheus-metrics-exposition-textformats:${project.prometheus_libs_version}"))
     if (nettyVersion != null) {
         shadow(implementation("io.netty:netty-codec-http:${nettyVersion}")) {
             transitive = false
