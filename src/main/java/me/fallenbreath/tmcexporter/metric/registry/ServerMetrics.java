@@ -18,31 +18,15 @@
  * along with TMC Exporter.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.fallenbreath.tmcexporter.metrics;
+package me.fallenbreath.tmcexporter.metric.registry;
 
 import io.prometheus.metrics.core.metrics.Counter;
 import io.prometheus.metrics.core.metrics.Gauge;
-import io.prometheus.metrics.core.metrics.Histogram;
-import io.prometheus.metrics.model.registry.PrometheusRegistry;
 
-public class MetricRegistry
+public class ServerMetrics
 {
-	public static final PrometheusRegistry REGISTRY = new PrometheusRegistry();
+	public static final Counter SERVER_TICK_COUNT = MetricRegistry.counter("server_tick_count", "");
+	public static final Counter GAME_TICK_COUNT = MetricRegistry.counter("game_tick_count", "");
 
-	private static final String NAMESPACE = "tmcexporter";
-
-	public static Counter counter(String name, String help)
-	{
-		return Counter.builder().name(NAMESPACE + "_" + name).help(help).register(REGISTRY);
-	}
-
-	public static Gauge gauge(String name, String help)
-	{
-		return Gauge.builder().name(NAMESPACE + "_" + name).help(help).register(REGISTRY);
-	}
-
-	public static Histogram histogram(String name, String help)
-	{
-		return Histogram.builder().name(NAMESPACE + "_" + name).help(help).register(REGISTRY);
-	}
+	public static final Gauge PLAYER_COUNT = MetricRegistry.gauge("player_count", "");
 }

@@ -51,5 +51,7 @@ public class TmcExporterMod implements ModInitializer
 		ModMetadata metadata = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow(RuntimeException::new).getMetadata();
 		MOD_NAME = metadata.getName();
 		MOD_VERSION = metadata.getVersion().getFriendlyString();
+
+		TmcExporterHooks.onInitialize();
 	}
 }

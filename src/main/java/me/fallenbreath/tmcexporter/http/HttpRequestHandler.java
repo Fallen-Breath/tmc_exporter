@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.*;
 import io.prometheus.metrics.expositionformats.PrometheusTextFormatWriter;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 import me.fallenbreath.tmcexporter.TmcExporterMod;
-import me.fallenbreath.tmcexporter.metrics.MetricRegistry;
+import me.fallenbreath.tmcexporter.metric.registry.MetricRegistry;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -37,8 +37,7 @@ public class HttpRequestHandler
 {
 	public FullHttpResponse process(FullHttpRequest request)
 	{
-		TmcExporterMod.LOGGER.info("Received request: {} {}", request.method(), request.uri());
-		TmcExporterMod.LOGGER.info("Headers: {}", request.headers());
+		TmcExporterMod.LOGGER.debug("Received request: {} {} {}", request.method(), request.uri(), request.headers());
 
 		if (!Objects.equals(request.uri(), "/metrics") && !Objects.equals(request.uri(), "/metrics/"))
 		{
@@ -70,7 +69,7 @@ public class HttpRequestHandler
 		catch (IOException e)
 		{
 			// should not happen
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 
 		return byteBuf;

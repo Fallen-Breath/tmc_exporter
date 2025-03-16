@@ -18,32 +18,31 @@
  * along with TMC Exporter.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.fallenbreath.tmcexporter.mixins.metric;
+package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
-import me.fallenbreath.tmcexporter.metrics.ServerMetrics;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
+import me.fallenbreath.tmcexporter.metric.collect.fake.ServerWorldAssociated;
+import net.minecraft.block.Block;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.tick.WorldTickScheduler;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MinecraftServer.class)
-public abstract class MinecraftServerMixin
+@Mixin(ServerWorld.class)
+public abstract class ServerWorldMixin
 {
-	@Shadow private PlayerManager playerManager;
+	@Shadow @Final private WorldTickScheduler<Block> blockTickScheduler;
+	@Shadow @Final private WorldTickScheduler<Fluid> fluidTickScheduler;
 
-	@Inject(method = "tick", at = @At("HEAD"))
-	private void onServerTick(CallbackInfo ci)
+	@Inject(method = "<init>", 	at = @At("TAIL"))
+	private void associateSelfToTickSchedulers(CallbackInfo ci)
 	{
-		ServerMetrics.SERVER_TICK.inc();
-		ServerMetrics.PLAYER_COUNT.set(this.playerManager.getCurrentPlayerCount());
-	}
-
-	@Inject(method = "tickWorlds", at = @At("TAIL"))
-	private void onGameTick(CallbackInfo ci)
-	{
-		ServerMetrics.GAME_TICK.inc();
+		ServerWorld self = (ServerWorld)(Object)this;
+		((ServerWorldAssociated)this.blockTickScheduler).setServerWorld$TMCE(self);
+		((ServerWorldAssociated)this.fluidTickScheduler).setServerWorld$TMCE(self);
 	}
 }
