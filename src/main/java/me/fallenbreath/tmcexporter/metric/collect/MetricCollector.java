@@ -23,6 +23,7 @@ package me.fallenbreath.tmcexporter.metric.collect;
 import me.fallenbreath.tmcexporter.metric.collect.stats.DimensionStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.PerTickStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.StaticStats;
+import me.fallenbreath.tmcexporter.metric.common.ChunkStatus;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.ServerStats;
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import me.fallenbreath.tmcexporter.metric.common.TileTickKey;
@@ -156,11 +157,8 @@ public class MetricCollector
 				loadedChunks.add(chunk);
 			}
 
-			stats.chunk.loadedTotal++;
-			int level = chunkHolder.getLevel();
-			if (level <= 31) stats.chunk.loadedEntity++;
-			else if (level <= 32) stats.chunk.loadedBlock++;
-			else if (level <= 33) stats.chunk.loadedBorder++;
+			ChunkStatus status = ChunkStatus.fromLevel(chunkHolder.getLevel());
+			stats.chunk.loaded.put(status, stats.chunk.loaded.getOrDefault(status, 0) + 1);
 		}
 
 		for (TileTickType tileTickType : TileTickType.values())
@@ -196,9 +194,9 @@ public class MetricCollector
 		{
 			for (BlockEntity blockEntity : ((ChunkAccessor)chunk).getBlockEntities().values())
 			{
-				stats.blockEntity.access(
+				stats.tileEntity.access(
 						IdentifierUtils.of(blockEntity.getType()),
-						bes -> bes.total++
+						tes -> tes.total++
 				);
 			}
 		}
@@ -206,9 +204,9 @@ public class MetricCollector
 			BlockEntity blockEntity = BlockEntityUtils.getBlockEntityFromTickInvoker(ticker);
 			if (blockEntity != null)
 			{
-				stats.blockEntity.access(
+				stats.tileEntity.access(
 						IdentifierUtils.of(blockEntity.getType()),
-						bes -> bes.ticking++
+						tes -> tes.ticking++
 				);
 			}
 		});

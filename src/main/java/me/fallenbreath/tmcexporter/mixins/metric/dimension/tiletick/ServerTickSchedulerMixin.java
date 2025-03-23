@@ -20,16 +20,22 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.collect.fake.ServerWorldAssociated;
 import me.fallenbreath.tmcexporter.metric.common.TileTickKey;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldTickScheduler.class)
 public abstract class ServerTickSchedulerMixin<T> implements ServerWorldAssociated
@@ -66,5 +72,55 @@ public abstract class ServerTickSchedulerMixin<T> implements ServerWorldAssociat
 			}
 		});
 		return t;
+	}
+
+	@Inject(
+			method = "scheduleTick",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/world/tick/ChunkTickScheduler;scheduleTick(Lnet/minecraft/world/tick/OrderedTick;)V"
+			)
+	)
+	private void startScheduleTileTickEvent(
+			CallbackInfo ci,
+			@Local ChunkTickScheduler<T> chunkTickScheduler,
+			@Share("oldListSize") LocalIntRef oldListSize
+	)
+	{
+		oldListSize.set(chunkTickScheduler.getTickCount());
+	}
+
+	@Inject(
+			method = "scheduleTick",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/world/tick/ChunkTickScheduler;scheduleTick(Lnet/minecraft/world/tick/OrderedTick;)V",
+					shift = At.Shift.AFTER
+			)
+	)
+	private void endScheduleTileTickEvent(
+			CallbackInfo ci,
+			@Local(argsOnly = true) OrderedTick<T> t,
+			@Local ChunkTickScheduler<T> chunkTickScheduler,
+			@Share("oldListSize") LocalIntRef oldListSize
+	)
+	{
+		MetricCollector.getDimStats(this.serverWorld$TMCE).ifPresent(ds -> {
+			TileTickKey key = TileTickKey.ofTileTickObject(t.type());
+			if (key != null)
+			{
+				ds.tileTick.access(key, v -> {
+					boolean success = chunkTickScheduler.getTickCount() > oldListSize.get();
+					if (success)
+					{
+						v.schedule_succeeded++;
+					}
+					else
+					{
+						v.schedule_failed++;
+					}
+				});
+			}
+		});
 	}
 }

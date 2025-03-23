@@ -25,8 +25,12 @@ import io.prometheus.metrics.core.metrics.Gauge;
 
 public class ServerMetrics
 {
-	public static final Counter SERVER_TICK_COUNT = MetricRegistry.counter("server_tick_count", "");
-	public static final Counter GAME_TICK_COUNT = MetricRegistry.counter("game_tick_count", "");
+	public static final Gauge SERVER_UPTIME = MetricRegistry.gauge("server_uptime", "", null);
+	public static final Counter SERVER_TICK_COUNT = MetricRegistry.counter("server_tick_count", "", null);
 
-	public static final Gauge PLAYER_COUNT = MetricRegistry.gauge("player_count", "");
+	public static final Counter GAME_TICK_COUNT = MetricRegistry.counter("game_tick_count", "", null);
+	public static final Gauge GAME_GAME_TIME = MetricRegistry.gauge("game_game_time", "", null);
+	public static final Gauge GAME_DAY_TIME = MetricRegistry.gauge("game_day_time", "", null);
+
+	public static final Gauge PLAYER_COUNT = MetricRegistry.gauge("player_count", "", null);
 }

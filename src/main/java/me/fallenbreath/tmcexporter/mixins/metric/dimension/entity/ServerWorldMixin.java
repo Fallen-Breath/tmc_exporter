@@ -44,7 +44,7 @@ public abstract class ServerWorldMixin
 		if (loadOk)
 		{
 			MetricCollector.getDimStats((ServerWorld)(Object)this).ifPresent(ds -> {
-				ds.entity.access(IdentifierUtils.of(entity.getType()), v -> v.addPerTick++);
+				ds.entity.access(IdentifierUtils.of(entity.getType()), v -> v.added++);
 			});
 		}
 		return loadOk;

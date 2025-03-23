@@ -33,7 +33,7 @@ public class DimensionStats
 	public final StatsMap<TileTickKey, TileTickStats> tileTick = new StatsMap<>(TileTickStats::new);
 	public final StatsMap<Identifier, BlockEventStats> blockEvent = new StatsMap<>(BlockEventStats::new);
 	public final StatsMap<Identifier, EntityStats> entity = new StatsMap<>(EntityStats::new);
-	public final StatsMap<Identifier, BlockEntityStats> blockEntity = new StatsMap<>(BlockEntityStats::new);
+	public final StatsMap<Identifier, TileEntityStats> tileEntity = new StatsMap<>(TileEntityStats::new);
 
 	public final ChunkStats chunk = new ChunkStats();
 }

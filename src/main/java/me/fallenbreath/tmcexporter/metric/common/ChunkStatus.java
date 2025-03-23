@@ -20,32 +20,36 @@
 
 package me.fallenbreath.tmcexporter.metric.common;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.tick.WorldTickScheduler;
-
-import java.util.function.Function;
-
-public enum TileTickType
+public enum ChunkStatus
 {
-	BLOCK(ServerWorld::getBlockTickScheduler),
-	FLUID(ServerWorld::getFluidTickScheduler),
-	;
-
-	private final Function<ServerWorld, WorldTickScheduler<?>> schedulerGetter;
-
-	TileTickType(Function<ServerWorld, WorldTickScheduler<?>> schedulerGetter)
-	{
-		this.schedulerGetter = schedulerGetter;
-	}
-
-	public WorldTickScheduler<?> getSchedulerFromWorld(ServerWorld world)
-	{
-		return this.schedulerGetter.apply(world);
-	}
+	INACCESSIBLE,
+	BORDER,
+	BLOCK_TICKING,
+	ENTITY_TICKING;
 
 	@Override
 	public String toString()
 	{
 		return this.name().toLowerCase();
+	}
+
+	public static ChunkStatus fromLevel(int level)
+	{
+		if (level <= 31)
+		{
+			return ENTITY_TICKING;
+		}
+		else if (level <= 32)
+		{
+			return BLOCK_TICKING;
+		}
+		else if (level <= 33)
+		{
+			return BORDER;
+		}
+		else
+		{
+			return INACCESSIBLE;
+		}
 	}
 }

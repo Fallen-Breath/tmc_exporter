@@ -20,13 +20,14 @@
 
 package me.fallenbreath.tmcexporter.metric.collect.stats.dimension;
 
+import me.fallenbreath.tmcexporter.metric.common.ChunkStatus;
+
+import java.util.EnumMap;
+
 public class ChunkStats
 {
-	public long loadedTotal = 0;
-	public long loadedEntity = 0;
-	public long loadedBlock = 0;
-	public long loadedBorder = 0;
+	public EnumMap<ChunkStatus, Integer> loaded = new EnumMap<>(ChunkStatus.class);  // gauge
 
-	public long addPerTick = 0;
-	public long removePerTick = 0;
+	public long added = 0;  // counter (per tick)
+	public long removed = 0;  // counter (per tick)
 }

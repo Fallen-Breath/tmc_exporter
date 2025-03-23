@@ -20,11 +20,11 @@
 
 package me.fallenbreath.tmcexporter.metric.collect.stats.dimension;
 
-public class BlockEntityStats
+public class TileEntityStats
 {
-	public long total;
-	public long ticking;
+	public long total;  // gauge
+	public long ticking;  // gauge
 
-	public long addPerTick = 0;
-	public long removePerTick = 0;
+	public long added = 0;  // counter (per tick)
+	public long removed = 0;  // counter (per tick)
 }

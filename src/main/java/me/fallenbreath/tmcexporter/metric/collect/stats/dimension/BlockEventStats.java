@@ -22,8 +22,9 @@ package me.fallenbreath.tmcexporter.metric.collect.stats.dimension;
 
 public class BlockEventStats
 {
-	public long amount = 0;
-	public long ticked = 0;
-	public long added = 0;
-	public long removed = 0;
+	public long amount = 0;  // gauge
+
+	public long ticked = 0;  // counter (per tick)
+	public long added = 0;  // counter (per tick)
+	public long removed = 0;  // counter (per tick)
 }

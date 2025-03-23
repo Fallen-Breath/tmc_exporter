@@ -22,9 +22,9 @@ package me.fallenbreath.tmcexporter.metric.collect.stats.dimension;
 
 public class EntityStats
 {
-	public long total;
-	public long ticking;
+	public long total;  // gauge
+	public long ticking;  // gauge
 
-	public long addPerTick;
-	public long removePerTick;
+	public long added;  // counter (per tick)
+	public long removed;  // counter (per tick)
 }

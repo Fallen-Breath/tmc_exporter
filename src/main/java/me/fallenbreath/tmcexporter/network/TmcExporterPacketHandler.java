@@ -92,6 +92,7 @@ public class TmcExporterPacketHandler extends ByteToMessageDecoder
 	{
 		ctx.pipeline().remove(this);
 
+		String serverName = String.format("%s v%s", TmcExporterMod.MOD_NAME, TmcExporterMod.MOD_VERSION);
 		ctx.pipeline().addLast("tmce_http_codec", new HttpServerCodec());
 		ctx.pipeline().addLast("tmce_http_aggregator", new HttpObjectAggregator(8192));
 		ctx.pipeline().addLast("tmce_http_compressor", new HttpContentCompressor(256, new CompressionOptions[]{}));
@@ -102,7 +103,7 @@ public class TmcExporterPacketHandler extends ByteToMessageDecoder
 			{
 				FullHttpResponse response = httpRequestHandler.process(ctx.channel().remoteAddress(), request);
 
-				response.headers().set(HttpHeaderNames.SERVER, "TMC Exporter");
+				response.headers().set(HttpHeaderNames.SERVER, serverName);
 				response.headers().set(HttpHeaderNames.DATE, new Date());
 				response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
 				response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);

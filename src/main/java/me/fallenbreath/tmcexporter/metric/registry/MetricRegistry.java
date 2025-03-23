@@ -24,6 +24,7 @@ import io.prometheus.metrics.core.metrics.Counter;
 import io.prometheus.metrics.core.metrics.Gauge;
 import io.prometheus.metrics.core.metrics.Histogram;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -38,14 +39,24 @@ public class MetricRegistry
 		return NAMESPACE + "_" + name;
 	}
 
-	public static Counter counter(String name, String help)
+	public static Counter counter(String name, String help, @Nullable String[] labels)
 	{
-		return Counter.builder().name(createName(name)).help(help).register(REGISTRY);
+		Counter.Builder builder = Counter.builder().name(createName(name)).help(help);
+		if (labels != null && labels.length > 0)
+		{
+			builder.labelNames(labels);
+		}
+		return builder.register(REGISTRY);
 	}
 
-	public static Gauge gauge(String name, String help)
+	public static Gauge gauge(String name, String help, @Nullable String[] labels)
 	{
-		return Gauge.builder().name(createName(name)).help(help).register(REGISTRY);
+		Gauge.Builder builder = Gauge.builder().name(createName(name)).help(help);
+		if (labels != null && labels.length > 0)
+		{
+			builder.labelNames(labels);
+		}
+		return builder.register(REGISTRY);
 	}
 
 	public static Histogram histogram(String name, String help, Consumer<Histogram.Builder> builderConsumer)

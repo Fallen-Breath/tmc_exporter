@@ -24,4 +24,7 @@ public class TileTickStats
 {
 	public long amount = 0;
 	public long ticked = 0;
+
+	public long schedule_succeeded = 0;
+	public long schedule_failed = 0;
 }

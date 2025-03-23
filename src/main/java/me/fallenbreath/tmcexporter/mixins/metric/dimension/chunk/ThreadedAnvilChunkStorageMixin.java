@@ -48,7 +48,7 @@ public abstract class ThreadedAnvilChunkStorageMixin
 	)
 	private void countChunkLoad(CallbackInfoReturnable<ChunkHolder> cir)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.addPerTick++);
+		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.added++);
 	}
 
 	@Inject(
@@ -60,6 +60,6 @@ public abstract class ThreadedAnvilChunkStorageMixin
 	)
 	private void countChunkUnload(CallbackInfo ci)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.removePerTick++);
+		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.removed++);
 	}
 }
