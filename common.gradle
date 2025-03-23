@@ -62,6 +62,7 @@ dependencies {
             transitive = false
         }
     }
+	testImplementation "junit:junit:${project.junit_version}"
 }
 
 String MIXIN_CONFIG_PATH = 'tmcexporter.mixins.json'

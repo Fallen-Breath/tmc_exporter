@@ -25,6 +25,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.compression.CompressionOptions;
 import io.netty.handler.codec.http.*;
 import me.fallenbreath.tmcexporter.TmcExporterMod;
 import me.fallenbreath.tmcexporter.http.HttpRequestHandler;
@@ -93,12 +94,13 @@ public class TmcExporterPacketHandler extends ByteToMessageDecoder
 
 		ctx.pipeline().addLast("tmce_http_codec", new HttpServerCodec());
 		ctx.pipeline().addLast("tmce_http_aggregator", new HttpObjectAggregator(8192));
+		ctx.pipeline().addLast("tmce_http_compressor", new HttpContentCompressor(256, new CompressionOptions[]{}));
 		ctx.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpRequest>()
 		{
 			@Override
 			protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request)
 			{
-				FullHttpResponse response = httpRequestHandler.process(request);
+				FullHttpResponse response = httpRequestHandler.process(ctx.channel().remoteAddress(), request);
 
 				response.headers().set(HttpHeaderNames.SERVER, "TMC Exporter");
 				response.headers().set(HttpHeaderNames.DATE, new Date());

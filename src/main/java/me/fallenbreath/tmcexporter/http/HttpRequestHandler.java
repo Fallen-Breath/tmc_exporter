@@ -27,17 +27,24 @@ import io.netty.handler.codec.http.*;
 import io.prometheus.metrics.expositionformats.PrometheusTextFormatWriter;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 import me.fallenbreath.tmcexporter.TmcExporterMod;
+import me.fallenbreath.tmcexporter.config.AddressWhitelistChecker;
 import me.fallenbreath.tmcexporter.metric.registry.MetricRegistry;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.Comparator;
 import java.util.Objects;
 
 public class HttpRequestHandler
 {
-	public FullHttpResponse process(FullHttpRequest request)
+	public FullHttpResponse process(SocketAddress clientAddress, FullHttpRequest request)
 	{
 		TmcExporterMod.LOGGER.debug("Received request: {} {} {}", request.method(), request.uri(), request.headers());
+
+		if (!this.allowForClient(clientAddress))
+		{
+			return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
+		}
 
 		if (!Objects.equals(request.uri(), "/metrics") && !Objects.equals(request.uri(), "/metrics/"))
 		{
@@ -50,6 +57,12 @@ public class HttpRequestHandler
 		response.headers().set(HttpHeaderNames.CONTENT_TYPE, PrometheusTextFormatWriter.CONTENT_TYPE);
 
 		return response;
+	}
+
+	private boolean allowForClient(SocketAddress clientAddress)
+	{
+		AddressWhitelistChecker checker = new AddressWhitelistChecker(new String[]{"*"});
+		return checker.test(clientAddress);
 	}
 
 	private ByteBuf createMetrics()
