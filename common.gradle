@@ -51,8 +51,17 @@ dependencies {
 
 	// dependencies
 //	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)))
+//	def fabricApiModules = ["fabric-resource-loader-v0"]
+//	if (mcVersion >= 12105) {  // "fabric-resource-loader-v0" dependency since fabric api 0.127.0
+//		fabricApiModules.add("fabric-api-base")
+//	}
+//	fabricApiModules.forEach {
+//		include(modImplementation(fabricApi.module(it, project.fabric_api_version)))
+//	}
 	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
-	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+    if (mcVersion < 12005) {
+		include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+	}
 
 	// libs
 	shadow(implementation("io.prometheus:prometheus-metrics-core:${project.prometheus_libs_version}"))
