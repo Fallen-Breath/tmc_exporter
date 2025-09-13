@@ -43,10 +43,13 @@ public class ServerStats
 
 	// players
 	public long playerCount;
+	public long playerMax;
 
 	// jvm status
-	public long memoryFree;
-	public long memoryAllocated;
-	public long memoryMax;
-	public long memoryNonHeap;
+	public String jvmName;
+	public String jvmVersion;
+	public long jvmMemoryFree;
+	public long jvmMemoryAllocated;
+	public long jvmMemoryMax;
+	public long jvmMemoryNonHeap;
 }

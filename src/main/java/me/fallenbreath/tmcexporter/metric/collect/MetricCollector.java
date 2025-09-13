@@ -136,13 +136,16 @@ public class MetricCollector
 		stats.dayTime = overworld != null ? overworld.getTimeOfDay() : 0;
 		stats.tickCostNs = stats.tickEndNs - stats.tickStartNs;
 		stats.playerCount = this.server.getCurrentPlayerCount();
+		stats.playerMax = this.server.getMaxPlayerCount();
 
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
-		stats.memoryFree = Runtime.getRuntime().freeMemory();
-		stats.memoryAllocated = Runtime.getRuntime().totalMemory();
-		stats.memoryMax = Runtime.getRuntime().maxMemory();
-		stats.memoryNonHeap = nonHeapMemoryUsage.getUsed();
+		stats.jvmName = Optional.ofNullable(System.getProperty("java.runtime.name")).orElse("");
+		stats.jvmVersion = Optional.ofNullable(System.getProperty("java.runtime.version")).orElse(Optional.ofNullable(System.getProperty("java.version")).orElse(""));
+		stats.jvmMemoryFree = Runtime.getRuntime().freeMemory();
+		stats.jvmMemoryAllocated = Runtime.getRuntime().totalMemory();
+		stats.jvmMemoryMax = Runtime.getRuntime().maxMemory();
+		stats.jvmMemoryNonHeap = nonHeapMemoryUsage.getUsed();
 	}
 
 	private void fillDimensionStats(ServerWorld world, DimensionStats stats)

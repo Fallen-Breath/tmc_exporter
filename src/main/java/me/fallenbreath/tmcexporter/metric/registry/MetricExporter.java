@@ -20,6 +20,7 @@
 
 package me.fallenbreath.tmcexporter.metric.registry;
 
+import me.fallenbreath.tmcexporter.TmcExporterMod;
 import me.fallenbreath.tmcexporter.metric.collect.stats.DimensionStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.PerTickStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.StaticStats;
@@ -40,8 +41,15 @@ public class MetricExporter
 
 	public void export(StaticStats staticStats, PerTickStats perTickStats)
 	{
+		this.exportStaticStats(staticStats);
 		this.exportServerStats(perTickStats.server);
 		perTickStats.dimensions.forEach(this::exportDimensionStats);
+	}
+
+	private void exportStaticStats(StaticStats staticStats)
+	{
+		ServerMetrics.SERVER_INFO.labelValues(staticStats.worldName).set(1);
+		ServerMetrics.MOD_INFO.labelValues(TmcExporterMod.MOD_NAME, TmcExporterMod.MOD_VERSION).set(1);
 	}
 
 	private void exportServerStats(ServerStats serverStats)
@@ -55,6 +63,13 @@ public class MetricExporter
 		ServerMetrics.GAME_DAY_TIME.set(overworld.getTimeOfDay());
 
 		ServerMetrics.PLAYER_COUNT.set(serverStats.playerCount);
+		ServerMetrics.PLAYER_MAX.set(serverStats.playerMax);
+
+		ServerMetrics.JVM_INFO.labelValues(serverStats.jvmName, serverStats.jvmVersion).set(1);
+		ServerMetrics.JVM_MEMORY_FREE.set(serverStats.jvmMemoryFree);
+		ServerMetrics.JVM_MEMORY_ALLOCATED.set(serverStats.jvmMemoryAllocated);
+		ServerMetrics.JVM_MEMORY_MAX.set(serverStats.jvmMemoryMax);
+		ServerMetrics.JVM_MEMORY_NON_HEAP.set(serverStats.jvmMemoryNonHeap);
 
 		TimeCostMetrics.GAME_TICK_COST.observe(serverStats.tickCostNs / 1e9);
 		serverStats.phaseCosts.forEach((phase, costNs) -> {

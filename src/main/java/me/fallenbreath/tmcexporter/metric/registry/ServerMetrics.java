@@ -25,6 +25,7 @@ import io.prometheus.metrics.core.metrics.Gauge;
 
 public class ServerMetrics
 {
+	public static final Gauge SERVER_INFO = MetricRegistry.gauge("server_information", "", new String[]{"world_name"});
 	public static final Gauge SERVER_UPTIME = MetricRegistry.gauge("server_uptime", "", null);
 	public static final Counter SERVER_TICK_COUNT = MetricRegistry.counter("server_tick_count", "", null);
 
@@ -33,4 +34,13 @@ public class ServerMetrics
 	public static final Gauge GAME_DAY_TIME = MetricRegistry.gauge("game_day_time", "", null);
 
 	public static final Gauge PLAYER_COUNT = MetricRegistry.gauge("player_count", "", null);
+	public static final Gauge PLAYER_MAX = MetricRegistry.gauge("player_max", "", null);
+
+	public static final Gauge JVM_INFO = MetricRegistry.gauge("jvm_information", "", new String[]{"name", "version"});
+	public static final Gauge JVM_MEMORY_FREE = MetricRegistry.gauge("jvm_memory_free", "", null);
+	public static final Gauge JVM_MEMORY_ALLOCATED = MetricRegistry.gauge("jvm_memory_allocated", "", null);
+	public static final Gauge JVM_MEMORY_MAX = MetricRegistry.gauge("jvm_memory_max", "", null);
+	public static final Gauge JVM_MEMORY_NON_HEAP = MetricRegistry.gauge("jvm_memory_non_heap", "", null);
+
+	public static final Gauge MOD_INFO = MetricRegistry.gauge("mod_information", "", new String[]{"name", "version"});
 }
