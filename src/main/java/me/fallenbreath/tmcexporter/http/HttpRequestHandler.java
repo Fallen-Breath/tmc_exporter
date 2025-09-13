@@ -74,10 +74,11 @@ public class HttpRequestHandler
 		MetricSnapshots metricSnapshots = builder.build();
 
 		ByteBuf byteBuf = Unpooled.buffer();
+		ByteBufOutputStream bufOut = new ByteBufOutputStream(byteBuf);
+		PrometheusTextFormatWriter writer = PrometheusTextFormatWriter.builder().setIncludeCreatedTimestamps(false).build();
 		try
 		{
-			ByteBufOutputStream bufOut = new ByteBufOutputStream(byteBuf);
-			new PrometheusTextFormatWriter(false).write(bufOut, metricSnapshots);
+			writer.write(bufOut, metricSnapshots);
 		}
 		catch (IOException e)
 		{
