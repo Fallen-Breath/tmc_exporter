@@ -49,7 +49,7 @@ public class MetricExporter
 	private void exportStaticStats(StaticStats staticStats)
 	{
 		ServerMetrics.SERVER_INFO.labelValues(staticStats.worldName).set(1);
-		ServerMetrics.MOD_INFO.labelValues(TmcExporterMod.MOD_NAME, TmcExporterMod.MOD_VERSION).set(1);
+		ServerMetrics.EXPORTER_INFO.labelValues(TmcExporterMod.MOD_NAME, TmcExporterMod.MOD_VERSION).set(1);
 	}
 
 	private void exportServerStats(ServerStats serverStats)

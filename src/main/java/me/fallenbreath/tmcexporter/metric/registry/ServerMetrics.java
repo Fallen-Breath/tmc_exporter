@@ -42,5 +42,5 @@ public class ServerMetrics
 	public static final Gauge JVM_MEMORY_MAX = MetricRegistry.gauge("jvm_memory_max", "", null);
 	public static final Gauge JVM_MEMORY_NON_HEAP = MetricRegistry.gauge("jvm_memory_non_heap", "", null);
 
-	public static final Gauge MOD_INFO = MetricRegistry.gauge("mod_information", "", new String[]{"name", "version"});
+	public static final Gauge EXPORTER_INFO = MetricRegistry.gauge("exporter_information", "", new String[]{"name", "version"});
 }
