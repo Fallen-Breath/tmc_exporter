@@ -20,33 +20,41 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.entity;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityLike;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin
+@Mixin(ServerEntityManager.class)
+public abstract class ServerEntityManagerMixin<T extends EntityLike>
 {
-	@ModifyExpressionValue(
-			method = "addEntity",
+	@Inject(
+			method = "addEntity(Lnet/minecraft/world/entity/EntityLike;Z)Z",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/world/ServerEntityManager;addEntity(Lnet/minecraft/world/entity/EntityLike;)Z"
+					target = "Lnet/minecraft/world/entity/EntityTrackingSection;add(Lnet/minecraft/world/entity/EntityLike;)V"
 			)
 	)
-	private boolean countEntityAdd(boolean loadOk, @Local(argsOnly = true) Entity entity)
+	private void countEntityAdd(CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) T entityLike)
 	{
-		if (loadOk)
+		if (entityLike instanceof Entity)
 		{
-			MetricCollector.getDimStats((ServerWorld)(Object)this).ifPresent(ds -> {
-				ds.entity.access(IdentifierUtils.of(entity.getType()), v -> v.added++);
-			});
+			Entity entity = (Entity)entityLike;
+			World world = entity.getEntityWorld();
+			if (world instanceof ServerWorld)
+			{
+				MetricCollector.getDimStats(world).ifPresent(ds -> {
+					ds.entity.access(IdentifierUtils.of(entity.getType()), v -> v.added++);
+				});
+			}
 		}
-		return loadOk;
 	}
 }
