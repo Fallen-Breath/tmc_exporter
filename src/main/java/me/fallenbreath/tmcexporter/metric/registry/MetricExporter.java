@@ -21,14 +21,18 @@
 package me.fallenbreath.tmcexporter.metric.registry;
 
 import me.fallenbreath.tmcexporter.TmcExporterMod;
+import me.fallenbreath.tmcexporter.metric.collect.TimeCostRecorder;
 import me.fallenbreath.tmcexporter.metric.collect.stats.DimensionStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.PerTickStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.StaticStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.dimension.ChunkStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.ServerStats;
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
+import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+
+import java.util.function.BiConsumer;
 
 public class MetricExporter
 {
@@ -52,6 +56,17 @@ public class MetricExporter
 		ServerMetrics.EXPORTER_INFO.labelValues(TmcExporterMod.MOD_NAME, TmcExporterMod.MOD_VERSION).set(1);
 	}
 
+	private static void forEachPhaseCost(TimeCostRecorder<GamePhase> phaseCosts, boolean inWorld, BiConsumer<GamePhase, Long> consumer)
+	{
+		for (GamePhase gamePhase : GamePhase.ALL)
+		{
+			if (gamePhase.isInsideWorld() == inWorld)
+			{
+				consumer.accept(gamePhase, phaseCosts.getCost(gamePhase));
+			}
+		}
+	}
+
 	private void exportServerStats(ServerStats serverStats)
 	{
 		ServerMetrics.SERVER_UPTIME.set(serverStats.uptimeNs / 1e9);
@@ -72,14 +87,14 @@ public class MetricExporter
 		ServerMetrics.JVM_MEMORY_NON_HEAP.set(serverStats.jvmMemoryNonHeap);
 
 		TimeCostMetrics.GAME_TICK_COST.observe(serverStats.tickCostNs / 1e9);
-		serverStats.phaseCosts.forEach((phase, costNs) -> {
+		forEachPhaseCost(serverStats.phaseCosts, false, (phase, costNs) -> {
 			TimeCostMetrics.GAME_PHASE_COST.labelValues("", phase.toString()).observe(costNs / 1e9);
 		});
 	}
 
 	private void exportDimensionStats(Dimension dimension, DimensionStats dimensionStats)
 	{
-		dimensionStats.phaseCosts.forEach((phase, costNs) -> {
+		forEachPhaseCost(dimensionStats.phaseCosts, true, (phase, costNs) -> {
 			TimeCostMetrics.GAME_PHASE_COST.labelValues(dimension.toString(), phase.toString()).observe(costNs / 1e9);
 		});
 		dimensionStats.blockEvent.forEach((key, stats) -> {

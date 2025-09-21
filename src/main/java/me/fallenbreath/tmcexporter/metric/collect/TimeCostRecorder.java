@@ -46,6 +46,11 @@ public class TimeCostRecorder<K>
 		this.timeCost.forEach(consumer);
 	}
 
+	public long getCost(K key)
+	{
+		return this.timeCost.getOrDefault(key, 0);
+	}
+
 	public void push(K newKey)
 	{
 		long now = System.nanoTime();
