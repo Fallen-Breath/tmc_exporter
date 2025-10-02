@@ -27,8 +27,8 @@ public class NetworkMetricExporter
 {
 	public static void recordPacketInfo(String direction, NetworkStats.PacketInfo info)
 	{
-		NetworkMetrics.PACKET_COUNT.labelValues(direction, String.valueOf(info.packetId), info.packetName).inc(info.packetRawSize);
-		NetworkMetrics.PACKET_RAW_SIZE.labelValues(direction, String.valueOf(info.packetId), info.packetName).observe(info.packetRawSize);
-		NetworkMetrics.PACKET_TRANSFER_SIZE.labelValues(direction, String.valueOf(info.packetId), info.packetName).observe(info.totalSize);
+		NetworkMetrics.PACKET_COUNT.labelValues(direction, String.valueOf(info.packetId), info.packetName).inc();
+		NetworkMetrics.PACKET_RAW_SIZE.labelValues(direction, String.valueOf(info.packetId), info.packetName).observe(info.packetRawSize + info.headerSize);
+		NetworkMetrics.PACKET_TRANSFER_SIZE.labelValues(direction, String.valueOf(info.packetId), info.packetName).observe(info.packetSize + info.headerSize);
 	}
 }

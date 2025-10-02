@@ -23,6 +23,7 @@ package me.fallenbreath.tmcexporter.metric.registry;
 import io.prometheus.metrics.core.metrics.Counter;
 import io.prometheus.metrics.core.metrics.Gauge;
 import io.prometheus.metrics.core.metrics.Histogram;
+import io.prometheus.metrics.core.metrics.Summary;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +53,16 @@ public class MetricRegistry
 	public static Gauge gauge(String name, String help, @Nullable String[] labels)
 	{
 		Gauge.Builder builder = Gauge.builder().name(createName(name)).help(help);
+		if (labels != null && labels.length > 0)
+		{
+			builder.labelNames(labels);
+		}
+		return builder.register(REGISTRY);
+	}
+
+	public static Summary summary(String name, String help, @Nullable String[] labels)
+	{
+		Summary.Builder builder = Summary.builder().name(createName(name)).help(help);
 		if (labels != null && labels.length > 0)
 		{
 			builder.labelNames(labels);

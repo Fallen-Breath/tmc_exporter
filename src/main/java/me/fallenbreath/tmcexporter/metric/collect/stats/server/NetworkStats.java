@@ -45,9 +45,9 @@ public class NetworkStats
 
 	public static class PacketInfo
 	{
-		public int totalSize = 0;  // len(varint(bufSize)) + packetBuf
+		public int headerSize = 0;  // len(varint(packetBuf))
 		public int packetSize = 0;  // len(packetBuf)
-		public int packetRawSize = -1;  // len(decompress(packetBuf))
+		public int packetRawSize = -1;  // len(packetBufUncompressed)
 		public int packetId;
 		public String packetName;
 	}

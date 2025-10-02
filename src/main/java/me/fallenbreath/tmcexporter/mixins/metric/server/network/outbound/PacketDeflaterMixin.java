@@ -23,6 +23,7 @@ package me.fallenbreath.tmcexporter.mixins.metric.server.network.outbound;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
+import net.minecraft.network.encoding.VarInts;
 import net.minecraft.network.handler.PacketDeflater;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,7 +45,8 @@ public abstract class PacketDeflaterMixin
 	private int network_recordOutboundRawSize(int uncompressedSize, @Local(argsOnly = true) ChannelHandlerContext ctx)
 	{
 		Optional.ofNullable(ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_OUTBOUND).get()).ifPresent(info -> {
-			info.packetRawSize = uncompressedSize;
+			int compressHeaderSize = VarInts.getSizeInBytes(uncompressedSize);
+			info.packetRawSize = compressHeaderSize + uncompressedSize;
 		});
 		return uncompressedSize;
 	}

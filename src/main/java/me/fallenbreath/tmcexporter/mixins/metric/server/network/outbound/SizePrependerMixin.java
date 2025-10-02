@@ -54,7 +54,7 @@ public abstract class SizePrependerMixin
 	{
 		Attribute<NetworkStats.PacketInfo> attr = ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_OUTBOUND);
 		Optional.ofNullable(attr.get()).ifPresent(info -> {
-			info.totalSize = packetSize + headerSize;
+			info.headerSize = headerSize;
 			info.packetSize = packetSize;
 			if (info.packetRawSize == -1)
 			{

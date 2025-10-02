@@ -44,7 +44,7 @@ public abstract class SplitterHandlerMixin
 	{
 		NetworkStats.PacketInfo info = new NetworkStats.PacketInfo();
 		int headerSize = VarInts.getSizeInBytes(packetSize);
-		info.totalSize = packetSize + headerSize;
+		info.headerSize = headerSize;
 		info.packetSize = packetSize;
 		info.packetRawSize = packetSize;  // fallback value
 		ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_INBOUND).set(info);

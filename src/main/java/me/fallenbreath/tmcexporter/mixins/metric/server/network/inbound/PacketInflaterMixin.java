@@ -22,8 +22,10 @@ package me.fallenbreath.tmcexporter.mixins.metric.server.network.inbound;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
+import net.minecraft.network.encoding.VarInts;
 import net.minecraft.network.handler.PacketInflater;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,10 +43,22 @@ public abstract class PacketInflaterMixin
 					ordinal = 0
 			)
 	)
-	private int network_recordInboundRawSize(int uncompressedSize, @Local(argsOnly = true) ChannelHandlerContext ctx)
+	private int network_recordInboundRawSize(
+			int uncompressedSize,
+			@Local(argsOnly = true) ChannelHandlerContext ctx,
+			@Local(argsOnly = true) ByteBuf buf
+	)
 	{
 		Optional.ofNullable(ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_INBOUND).get()).ifPresent(info -> {
-			info.packetRawSize = uncompressedSize;
+			int compressHeaderSize = VarInts.getSizeInBytes(uncompressedSize);
+			if (uncompressedSize == 0)
+			{
+				info.packetRawSize = compressHeaderSize + buf.readableBytes();
+			}
+			else
+			{
+				info.packetRawSize = compressHeaderSize + uncompressedSize;
+			}
 		});
 		return uncompressedSize;
 	}

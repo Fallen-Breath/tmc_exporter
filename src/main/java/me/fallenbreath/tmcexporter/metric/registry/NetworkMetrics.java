@@ -21,17 +21,17 @@
 package me.fallenbreath.tmcexporter.metric.registry;
 
 import io.prometheus.metrics.core.metrics.Counter;
-import io.prometheus.metrics.core.metrics.Histogram;
+import io.prometheus.metrics.core.metrics.Summary;
 
 public class NetworkMetrics
 {
 	public static final Counter PACKET_COUNT = MetricRegistry.counter("packet_count", "", new String[]{"direction", "id", "name"});
-	public static final Histogram PACKET_RAW_SIZE = MetricRegistry.histogram(
+	public static final Summary PACKET_RAW_SIZE = MetricRegistry.summary(
 			"packet_raw_size", "",
-			builder -> builder.labelNames("direction", "id", "name").classicUpperBounds().classicOnly()
+			new String[]{"direction", "id", "name"}
 	);
-	public static final Histogram PACKET_TRANSFER_SIZE = MetricRegistry.histogram(
+	public static final Summary PACKET_TRANSFER_SIZE = MetricRegistry.summary(
 			"packet_transfer_size", "",
-			builder -> builder.labelNames("direction", "id", "name").classicUpperBounds().classicOnly()
+			new String[]{"direction", "id", "name"}
 	);
 }
