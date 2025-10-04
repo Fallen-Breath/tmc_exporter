@@ -22,11 +22,12 @@ package me.fallenbreath.tmcexporter.metric.collect.stats.server;
 
 import io.netty.util.AttributeKey;
 import me.fallenbreath.tmcexporter.metric.exporter.NetworkMetricExporter;
+import me.fallenbreath.tmcexporter.metric.registry.vanilla.NetworkMetrics;
 
 /**
  * Notes: Concurrent access in network threads
  * <p>
- * See {@link me.fallenbreath.tmcexporter.metric.registry.NetworkMetrics}
+ * See {@link NetworkMetrics}
  */
 public class NetworkStats
 {

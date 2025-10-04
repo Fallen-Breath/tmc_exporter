@@ -21,7 +21,7 @@
 package me.fallenbreath.tmcexporter.metric.exporter;
 
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import me.fallenbreath.tmcexporter.metric.registry.NetworkMetrics;
+import me.fallenbreath.tmcexporter.metric.registry.vanilla.NetworkMetrics;
 
 public class NetworkMetricExporter
 {

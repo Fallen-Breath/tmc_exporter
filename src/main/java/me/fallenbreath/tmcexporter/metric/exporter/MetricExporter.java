@@ -29,9 +29,9 @@ import me.fallenbreath.tmcexporter.metric.collect.stats.dimension.ChunkStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.ServerStats;
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
-import me.fallenbreath.tmcexporter.metric.registry.DimensionMetrics;
-import me.fallenbreath.tmcexporter.metric.registry.ServerMetrics;
-import me.fallenbreath.tmcexporter.metric.registry.TimeCostMetrics;
+import me.fallenbreath.tmcexporter.metric.registry.vanilla.DimensionMetrics;
+import me.fallenbreath.tmcexporter.metric.registry.vanilla.ServerMetrics;
+import me.fallenbreath.tmcexporter.metric.registry.vanilla.TimeCostMetrics;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 

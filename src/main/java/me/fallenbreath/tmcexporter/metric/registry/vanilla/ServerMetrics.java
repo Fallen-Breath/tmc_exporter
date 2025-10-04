@@ -18,10 +18,11 @@
  * along with TMC Exporter.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.fallenbreath.tmcexporter.metric.registry;
+package me.fallenbreath.tmcexporter.metric.registry.vanilla;
 
 import io.prometheus.metrics.core.metrics.Counter;
 import io.prometheus.metrics.core.metrics.Gauge;
+import me.fallenbreath.tmcexporter.metric.registry.MetricRegistry;
 
 public class ServerMetrics
 {

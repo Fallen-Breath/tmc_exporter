@@ -21,13 +21,10 @@
 package me.fallenbreath.tmcexporter.mixins.metric.server.tick;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
-import me.fallenbreath.tmcexporter.metric.registry.ServerMetrics;
-import me.fallenbreath.tmcexporter.metric.registry.TimeCostMetrics;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
