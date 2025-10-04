@@ -20,8 +20,8 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.timecost;
 
-import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
+import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.SpawnHelper;
 import org.spongepowered.asm.mixin.Mixin;

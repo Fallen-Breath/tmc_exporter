@@ -20,8 +20,8 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.server.timecost;
 
-import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
+import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
