@@ -43,7 +43,7 @@ public abstract class SizePrependerMixin
 					ordinal = 0,
 					remap = false
 			),
-			remap = false
+			remap = true
 	)
 	private void network_recordTrafficSize(
 			CallbackInfo ci,
