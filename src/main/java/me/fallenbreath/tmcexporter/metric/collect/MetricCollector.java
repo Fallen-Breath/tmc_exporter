@@ -20,6 +20,7 @@
 
 package me.fallenbreath.tmcexporter.metric.collect;
 
+import com.google.common.collect.Lists;
 import me.fallenbreath.tmcexporter.metric.collect.stats.DimensionStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.PerTickStats;
 import me.fallenbreath.tmcexporter.metric.collect.stats.StaticStats;
@@ -52,7 +53,6 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.Tick;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.management.ManagementFactory;
