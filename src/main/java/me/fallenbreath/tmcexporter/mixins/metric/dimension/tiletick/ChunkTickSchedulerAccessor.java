@@ -21,9 +21,23 @@
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
 import net.minecraft.world.tick.ChunkTickScheduler;
+import net.minecraft.world.tick.OrderedTick;
+import net.minecraft.world.tick.Tick;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
+
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 @Mixin(ChunkTickScheduler.class)
-public interface ChunkTickSchedulerAccessor
+public interface ChunkTickSchedulerAccessor<T>
 {
+	@Accessor
+	Queue<OrderedTick<T>> getTickQueue();
+
+	@Accessor
+	@Nullable
+	List<Tick<T>> getTicks();
 }

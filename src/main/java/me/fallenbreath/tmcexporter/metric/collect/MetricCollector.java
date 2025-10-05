@@ -34,6 +34,7 @@ import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.ChunkAcce
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.WorldAccessor;
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.ServerEntityManagerAccessor;
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.ServerWorldAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.ChunkTickSchedulerAccessor;
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.WorldTickSchedulerAccessor;
 import me.fallenbreath.tmcexporter.utils.BlockEntityUtils;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
@@ -49,6 +50,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.entity.EntityTrackingStatus;
 import net.minecraft.world.entity.SectionedEntityCache;
 import net.minecraft.world.tick.ChunkTickScheduler;
+import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.Tick;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.Nullable;
@@ -168,7 +170,16 @@ public class MetricCollector
 		{
 			for (ChunkTickScheduler<?> cts : ((WorldTickSchedulerAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getChunkTickSchedulers().values())
 			{
-				for (Tick<?> t : cts.collectTicks(0))
+				ChunkTickSchedulerAccessor<?> ctsAccess = (ChunkTickSchedulerAccessor<?>)cts;
+				List<? extends Tick<?>> ticks = ctsAccess.getTicks();
+				if (ticks != null)
+				{
+					for (Tick<?> t : ticks)
+					{
+						stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
+					}
+				}
+				for (OrderedTick<?> t : ctsAccess.getTickQueue())
 				{
 					stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
 				}

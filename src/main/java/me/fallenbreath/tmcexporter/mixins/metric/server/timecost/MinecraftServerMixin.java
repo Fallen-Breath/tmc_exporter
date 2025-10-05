@@ -44,7 +44,11 @@ public abstract class MinecraftServerMixin
 	}
 
 	@Inject(
+			//#if MC >= 1.21.3
 			method = "runAutosave",
+			//#else
+			//$$ method = "tick",
+			//#endif
 			at = @At(
 					value = "CONSTANT",
 					args = "stringValue=Autosave started"
@@ -56,7 +60,11 @@ public abstract class MinecraftServerMixin
 	}
 
 	@Inject(
+			//#if MC >= 1.21.3
 			method = "runAutosave",
+			//#else
+			//$$ method = "tick",
+			//#endif
 			at = @At(
 					value = "CONSTANT",
 					args = "stringValue=Autosave finished"
