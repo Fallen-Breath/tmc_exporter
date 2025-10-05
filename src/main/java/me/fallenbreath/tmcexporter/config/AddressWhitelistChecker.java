@@ -20,6 +20,7 @@
 
 package me.fallenbreath.tmcexporter.config;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import me.fallenbreath.tmcexporter.TmcExporterMod;
 
@@ -37,6 +38,9 @@ import java.util.function.Predicate;
  */
 public class AddressWhitelistChecker implements Predicate<SocketAddress>
 {
+	@VisibleForTesting
+	public static boolean IS_UNITTEST = false;
+
 	private final boolean alwaysTrust;
 	private final Set<InetAddress> trustedHosts = Sets.newHashSet();
 	private final Set<SubnetInfo> trustedNetworks = Sets.newHashSet();
@@ -66,7 +70,10 @@ public class AddressWhitelistChecker implements Predicate<SocketAddress>
 				}
 				catch (IllegalArgumentException e)
 				{
-					TmcExporterMod.LOGGER.warn("Invalid subnet: {}", trimmedHost);
+					if (!IS_UNITTEST)
+					{
+						TmcExporterMod.LOGGER.warn("Invalid subnet: {}", trimmedHost);
+					}
 				}
 			}
 			else
@@ -78,7 +85,10 @@ public class AddressWhitelistChecker implements Predicate<SocketAddress>
 				}
 				catch (UnknownHostException e)
 				{
-					TmcExporterMod.LOGGER.warn("Invalid address: {}", trimmedHost);
+					if (!IS_UNITTEST)
+					{
+						TmcExporterMod.LOGGER.warn("Invalid address: {}", trimmedHost);
+					}
 				}
 			}
 		}

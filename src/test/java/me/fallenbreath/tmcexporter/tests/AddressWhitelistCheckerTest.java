@@ -28,6 +28,11 @@ import java.net.SocketAddress;
 
 public class AddressWhitelistCheckerTest extends TestCase
 {
+	static
+	{
+		AddressWhitelistChecker.IS_UNITTEST = true;
+	}
+
 	public void testWildcard()
 	{
 		String[] whitelist = {"*"};
