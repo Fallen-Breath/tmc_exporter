@@ -9,7 +9,7 @@ int mcVersion = project.mcVersion
 
 repositories {
 	maven {
-		url = 'https://maven.fallenbreath.me/jitpack'
+		url = 'https://masa.dy.fi/maven'
 	}
 	maven {
 		url = 'https://maven.fallenbreath.me/releases'
@@ -52,17 +52,15 @@ dependencies {
 	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
 
 	// dependencies
-//	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)))
-//	def fabricApiModules = ["fabric-resource-loader-v0"]
-//	if (mcVersion >= 12105) {  // "fabric-resource-loader-v0" dependency since fabric api 0.127.0
-//		fabricApiModules.add("fabric-api-base")
-//	}
-//	fabricApiModules.forEach {
-//		include(modImplementation(fabricApi.module(it, project.fabric_api_version)))
-//	}
 	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
     if (mcVersion < 12005) {
 		include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+	}
+
+	// tmc mods
+	modImplementation "carpet:fabric-carpet:${project.fabric_carpet_version}"
+	modImplementation("carpettisaddition:carpet-tis-addition:${project.carpet_tis_addition_version}") {
+		exclude group: 'carpet', module: 'fabric-carpet'
 	}
 
 	// libs

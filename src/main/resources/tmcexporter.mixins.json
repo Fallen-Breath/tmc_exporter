@@ -21,6 +21,7 @@
     "metric.dimension.timecost.ServerChunkManagerMixin",
     "metric.dimension.timecost.ServerWorldMixin",
     "metric.dimension.timecost.SpawnHelperMixin",
+    "metric.mod.fabriccarpet.HopperCounterMixin",
     "metric.server.network.ClientConnectionMixin",
     "metric.server.network.ServerNetworkIoMixin",
     "metric.server.network.inbound.DecoderHandlerMixin",
