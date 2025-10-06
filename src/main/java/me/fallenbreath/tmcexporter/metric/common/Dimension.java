@@ -63,6 +63,17 @@ public class Dimension
 		);
 	}
 
+	public static Dimension of(
+			//#if MC >= 11600
+			RegistryKey<World> dimensionType
+			//#else
+			//$$ DimensionType dimensionType
+			//#endif
+	)
+	{
+		return new Dimension(dimensionType);
+	}
+
 	public static Dimension of(Entity entity)
 	{
 		return of(entity.getEntityWorld());

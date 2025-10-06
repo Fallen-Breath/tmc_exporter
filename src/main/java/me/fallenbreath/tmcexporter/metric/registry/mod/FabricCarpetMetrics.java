@@ -26,4 +26,9 @@ import me.fallenbreath.tmcexporter.metric.registry.MetricRegistry;
 public class FabricCarpetMetrics
 {
 	public static final Counter HOPPER_COUNTER = MetricRegistry.counter("carpet_hopper_counter", "", new String[]{"color"});
+
+	public static final Counter SPAWN_TICK_FULL = MetricRegistry.counter("carpet_spawn_tick_full", "", new String[]{"dimension", "category"});
+	public static final Counter SPAWN_TICK_FAIL = MetricRegistry.counter("carpet_spawn_tick_fail", "", new String[]{"dimension", "category"});
+	public static final Counter SPAWN_TICK_SUCC = MetricRegistry.counter("carpet_spawn_tick_succ", "", new String[]{"dimension", "category"});
+	public static final Counter SPAWN_TICK_SPAWN = MetricRegistry.counter("carpet_spawn_tick_spawn", "", new String[]{"dimension", "category"});
 }
