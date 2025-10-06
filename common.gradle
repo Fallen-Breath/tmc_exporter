@@ -89,7 +89,13 @@ if (mcVersion >= 12005) {
 JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 
 loom {
-	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
+	def commonVmArgs = ['-Dmixin.debug.export=true']
+	if (mcVersion < 11904) {
+		// Carpet 1.4.100+v230314 for mc1.19.4 and above
+		// fail to pass the check on at MinecraftServer_pingPlayerSampleLimit#modifyPlayerSampleLimit
+		// see https://github.com/gnembon/fabric-carpet/pull/1938
+		commonVmArgs.add('-Dmixin.debug.countInjections=true')
+	}
 	runConfigs.server {
 		ideConfigGenerated = true
 	}
