@@ -61,6 +61,7 @@ import java.lang.management.MemoryUsage;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 
 public class MetricCollector
 {
@@ -172,6 +173,7 @@ public class MetricCollector
 			{
 				ChunkTickSchedulerAccessor<?> ctsAccess = (ChunkTickSchedulerAccessor<?>)cts;
 				List<? extends Tick<?>> ticks = ctsAccess.getTicks();
+				Queue<? extends OrderedTick<?>> tickQueue = ctsAccess.getTickQueue();
 				if (ticks != null)
 				{
 					for (Tick<?> t : ticks)
@@ -179,9 +181,12 @@ public class MetricCollector
 						stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
 					}
 				}
-				for (OrderedTick<?> t : ctsAccess.getTickQueue())
+				if (tickQueue != null)
 				{
-					stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
+					for (OrderedTick<?> t : tickQueue)
+					{
+						stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
+					}
 				}
 			}
 		}
