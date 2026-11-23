@@ -29,7 +29,6 @@ repositories {
 	}
 }
 
-// TODO
 def nettyVersions = [
 		12109: null,  // MC 1.21.9 already has "io.netty:netty-codec-http:xxx"
 		12105: "4.1.118.Final",
