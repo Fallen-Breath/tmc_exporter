@@ -23,24 +23,24 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.entity;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerEntityManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerEntityManager.class)
-public abstract class ServerEntityManagerMixin<T extends EntityLike>
+@Mixin(PersistentEntitySectionManager.class)
+public abstract class ServerEntityManagerMixin<T extends EntityAccess>
 {
 	@Inject(
-			method = "addEntity(Lnet/minecraft/world/entity/EntityLike;Z)Z",
+			method = "addEntity(Lnet/minecraft/world/level/entity/EntityAccess;Z)Z",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/entity/EntityTrackingSection;add(Lnet/minecraft/world/entity/EntityLike;)V"
+					target = "Lnet/minecraft/world/level/entity/EntitySection;add(Lnet/minecraft/world/level/entity/EntityAccess;)V"
 			)
 	)
 	private void countEntityAdd(CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) T entityLike)
@@ -48,8 +48,8 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike>
 		if (entityLike instanceof Entity)
 		{
 			Entity entity = (Entity)entityLike;
-			World world = entity.getEntityWorld();
-			if (world instanceof ServerWorld)
+			Level world = entity.getCommandSenderWorld();
+			if (world instanceof ServerLevel)
 			{
 				MetricCollector.getDimStats(world).ifPresent(ds -> {
 					ds.entity.access(IdentifierUtils.of(entity.getType()), v -> v.added++);

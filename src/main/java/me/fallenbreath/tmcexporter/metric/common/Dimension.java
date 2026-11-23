@@ -20,22 +20,22 @@
 
 package me.fallenbreath.tmcexporter.metric.common;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
 //#if MC >= 11600
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.resources.ResourceKey;
 //#else
-//$$ import net.minecraft.world.dimension.DimensionType;
+//$$ import net.minecraft.world.level.dimension.DimensionType;
 //#endif
 
 public class Dimension
 {
 	//#if MC >= 11600
-	private final RegistryKey<World> dimensionType;
+	private final ResourceKey<Level> dimensionType;
 	//#else
 	//$$ private final DimensionType dimensionType;
 	//#endif
@@ -43,7 +43,7 @@ public class Dimension
 
 	private Dimension(
 			//#if MC >= 11600
-			RegistryKey<World> dimensionType
+			ResourceKey<Level> dimensionType
 			//#else
 			//$$ DimensionType dimensionType
 			//#endif
@@ -52,11 +52,11 @@ public class Dimension
 		this.dimensionType = dimensionType;
 	}
 
-	public static Dimension of(World world)
+	public static Dimension of(Level world)
 	{
 		return new Dimension(
 				//#if MC >= 11600
-				world.getRegistryKey()
+				world.dimension()
 				//#else
 				//$$ world.getDimension().getType()
 				//#endif
@@ -65,7 +65,7 @@ public class Dimension
 
 	public static Dimension of(
 			//#if MC >= 11600
-			RegistryKey<World> dimensionType
+			ResourceKey<Level> dimensionType
 			//#else
 			//$$ DimensionType dimensionType
 			//#endif
@@ -76,15 +76,15 @@ public class Dimension
 
 	public static Dimension of(Entity entity)
 	{
-		return of(entity.getEntityWorld());
+		return of(entity.getCommandSenderWorld());
 	}
 
-	public Identifier getIdentifier()
+	public ResourceLocation getIdentifier()
 	{
 		//#if MC >= 11600
-		return this.dimensionType.getValue();
+		return this.dimensionType.location();
 		//#else
-		//$$ return DimensionType.getId(this.dimensionType);
+		//$$ return DimensionType.getName(this.dimensionType);
 		//#endif
 	}
 

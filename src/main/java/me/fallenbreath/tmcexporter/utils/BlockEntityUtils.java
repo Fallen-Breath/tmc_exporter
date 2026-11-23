@@ -22,8 +22,8 @@ package me.fallenbreath.tmcexporter.utils;
 
 import me.fallenbreath.tmcexporter.mixins.utils.DirectBlockEntityTickInvokerAccessor;
 import me.fallenbreath.tmcexporter.mixins.utils.WrappedBlockEntityTickInvokerAccessor;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockEntityUtils
@@ -33,7 +33,7 @@ public class BlockEntityUtils
 	 * for mc 1.17+
 	 */
 	@Nullable
-	public static BlockEntity getBlockEntityFromTickInvoker(BlockEntityTickInvoker blockEntityTickInvoker)
+	public static BlockEntity getBlockEntityFromTickInvoker(TickingBlockEntity blockEntityTickInvoker)
 	{
 		if (blockEntityTickInvoker instanceof DirectBlockEntityTickInvokerAccessor)
 		{
@@ -41,7 +41,7 @@ public class BlockEntityUtils
 		}
 		else if (blockEntityTickInvoker instanceof WrappedBlockEntityTickInvokerAccessor)
 		{
-			return getBlockEntityFromTickInvoker(((WrappedBlockEntityTickInvokerAccessor<?>)blockEntityTickInvoker).getWrapped());
+			return getBlockEntityFromTickInvoker(((WrappedBlockEntityTickInvokerAccessor<?>)blockEntityTickInvoker).getTicker());
 		}
 		return null;
 	}

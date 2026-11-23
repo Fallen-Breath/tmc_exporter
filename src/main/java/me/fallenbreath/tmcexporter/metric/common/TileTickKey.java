@@ -20,12 +20,12 @@
 
 package me.fallenbreath.tmcexporter.metric.common;
 
-import net.minecraft.block.Block;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.ticks.LevelTicks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -33,15 +33,15 @@ import java.util.Objects;
 public class TileTickKey
 {
 	public final TileTickType type;
-	public final Identifier id;
+	public final ResourceLocation id;
 
-	private TileTickKey(TileTickType type, Identifier id)
+	private TileTickKey(TileTickType type, ResourceLocation id)
 	{
 		this.type = type;
 		this.id = id;
 	}
 
-	public static TileTickKey of(TileTickType type, Identifier id)
+	public static TileTickKey of(TileTickType type, ResourceLocation id)
 	{
 		return new TileTickKey(type, id);
 	}
@@ -51,11 +51,11 @@ public class TileTickKey
 	{
 		if (object instanceof Block)
 		{
-			return of(TileTickType.BLOCK, Registries.BLOCK.getId((Block)object));
+			return of(TileTickType.BLOCK, BuiltInRegistries.BLOCK.getKey((Block)object));
 		}
 		else if (object instanceof Fluid)
 		{
-			return of(TileTickType.FLUID, Registries.FLUID.getId((Fluid)object));
+			return of(TileTickType.FLUID, BuiltInRegistries.FLUID.getKey((Fluid)object));
 		}
 		return null;
 	}
@@ -76,14 +76,14 @@ public class TileTickKey
 	}
 
 	@SuppressWarnings("EnhancedSwitchMigration")
-	public WorldTickScheduler<?> getScheduler(ServerWorld world)
+	public LevelTicks<?> getScheduler(ServerLevel world)
 	{
 		switch (this.type)
 		{
 			case BLOCK:
-				return world.getBlockTickScheduler();
+				return world.getBlockTicks();
 			case FLUID:
-				return world.getFluidTickScheduler();
+				return world.getFluidTicks();
 			default:
 				throw new IllegalArgumentException("invalid type: " + this.type);
 		}

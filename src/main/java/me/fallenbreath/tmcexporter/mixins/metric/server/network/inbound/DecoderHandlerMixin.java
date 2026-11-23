@@ -25,9 +25,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
 import me.fallenbreath.tmcexporter.utils.NetworkUtils;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.handler.DecoderHandler;
-import net.minecraft.network.packet.Packet;
+import net.minecraft.network.ProtocolInfo;
+import net.minecraft.network.PacketDecoder;
+import net.minecraft.network.protocol.Packet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,25 +37,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-@Mixin(DecoderHandler.class)
+@Mixin(PacketDecoder.class)
 public abstract class DecoderHandlerMixin
 {
 	@Shadow @Final
-	private NetworkState<?> state;
+	private ProtocolInfo<?> protocolInfo;
 
 	@Inject(
 			method = "decode",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/network/handler/NetworkStateTransitionHandler;onDecoded(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V"
+					target = "Lnet/minecraft/network/ProtocolSwapHandler;handleInboundTerminalPacket(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V"
 			)
 	)
 	private void network_recordInboundTrafficId(CallbackInfo ci, @Local(argsOnly = true) ChannelHandlerContext ctx, @Local Packet<?> packet)
 	{
 		Attribute<NetworkStats.PacketInfo> attr = ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_INBOUND);
 		Optional.ofNullable(attr.get()).ifPresent(info -> {
-			info.packetId = NetworkUtils.getPacketId(this.state, packet.getPacketType());
-			info.packetName = this.state.id().getId() + "/" + packet.getPacketType().toString();
+			info.packetId = NetworkUtils.getPacketId(this.protocolInfo, packet.type());
+			info.packetName = this.protocolInfo.id().id() + "/" + packet.type().toString();
 			NetworkStats.recordInbound(info);
 		});
 		attr.set(null);

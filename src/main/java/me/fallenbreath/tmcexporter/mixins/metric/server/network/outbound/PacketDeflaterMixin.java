@@ -23,29 +23,29 @@ package me.fallenbreath.tmcexporter.mixins.metric.server.network.outbound;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import net.minecraft.network.encoding.VarInts;
-import net.minecraft.network.handler.PacketDeflater;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.CompressionEncoder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import java.util.Optional;
 
-@Mixin(PacketDeflater.class)
+@Mixin(CompressionEncoder.class)
 public abstract class PacketDeflaterMixin
 {
 	@ModifyVariable(
 			method = "encode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V",
 			at = @At(
 					value = "FIELD",
-					target = "Lnet/minecraft/network/handler/PacketDeflater;compressionThreshold:I",
+					target = "Lnet/minecraft/network/CompressionEncoder;threshold:I",
 					ordinal = 0
 			)
 	)
 	private int network_recordOutboundRawSize(int uncompressedSize, @Local(argsOnly = true) ChannelHandlerContext ctx)
 	{
 		Optional.ofNullable(ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_OUTBOUND).get()).ifPresent(info -> {
-			int compressHeaderSize = VarInts.getSizeInBytes(uncompressedSize);
+			int compressHeaderSize = VarInt.getByteSize(uncompressedSize);
 			info.packetRawSize = compressHeaderSize + uncompressedSize;
 		});
 		return uncompressedSize;

@@ -22,8 +22,8 @@ package me.fallenbreath.tmcexporter.metric.exporter;
 
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import me.fallenbreath.tmcexporter.metric.registry.mod.FabricCarpetMetrics;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.ItemStack;
 
 public class FabricCarpetExporter
 {
@@ -32,22 +32,22 @@ public class FabricCarpetExporter
 		FabricCarpetMetrics.HOPPER_COUNTER.labelValues(color).inc(stack.getCount());
 	}
 
-	public static void recordSpawnRecorderSpawnTicksFullAdd(Dimension dimension, SpawnGroup spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksFullAdd(Dimension dimension, MobCategory spawnGroup, long delta)
 	{
 		FabricCarpetMetrics.SPAWN_TICK_FULL.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksFailAdd(Dimension dimension, SpawnGroup spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksFailAdd(Dimension dimension, MobCategory spawnGroup, long delta)
 	{
 		FabricCarpetMetrics.SPAWN_TICK_FAIL.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksSuccAdd(Dimension dimension, SpawnGroup spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksSuccAdd(Dimension dimension, MobCategory spawnGroup, long delta)
 	{
 		FabricCarpetMetrics.SPAWN_TICK_SUCC.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksSpawnsAdd(Dimension dimension, SpawnGroup spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksSpawnsAdd(Dimension dimension, MobCategory spawnGroup, long delta)
 	{
 		FabricCarpetMetrics.SPAWN_TICK_SPAWN.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
 	}

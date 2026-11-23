@@ -22,28 +22,33 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.timecost;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.SpawnHelper;
+import net.minecraft.world.level.NaturalSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(SpawnHelper.class)
+//#if MC >= 11500
+import net.minecraft.server.level.ServerLevel;
+//#else
+//$$ import net.minecraft.world.level.Level;
+//#endif
+
+@Mixin(NaturalSpawner.class)
 public abstract class SpawnHelperMixin
 {
 	@ModifyVariable(
 			//#if MC >= 11600
-			method = "spawn",
+			method = "spawnForChunk",
 			//#else
-			//$$ method = "spawnEntitiesInChunk",
+			//$$ method = "spawnCategoryForChunk",
 			//#endif
 			at = @At("HEAD"), argsOnly = true
 	)
 
 	//#if MC >= 11500
-	private static ServerWorld timeCost_spawningStart(ServerWorld world)
+	private static ServerLevel timeCost_spawningStart(ServerLevel world)
 	//#else
-	//$$ private static World timeCost_spawningStart(World world)
+	//$$ private static Level timeCost_spawningStart(Level world)
 	//#endif
 	{
 		MetricCollector.getDimStats(world).ifPresent(ds -> ds.phaseCosts.push(GamePhase.SPAWNING));
@@ -52,17 +57,17 @@ public abstract class SpawnHelperMixin
 
 	@ModifyVariable(
 			//#if MC >= 11600
-			method = "spawn",
+			method = "spawnForChunk",
 			//#else
-			//$$ method = "spawnEntitiesInChunk",
+			//$$ method = "spawnCategoryForChunk",
 			//#endif
 			at = @At("RETURN"),
 			argsOnly = true
 	)
 	//#if MC >= 11500
-	private static ServerWorld timeCost_spawningEnd(ServerWorld world)
+	private static ServerLevel timeCost_spawningEnd(ServerLevel world)
 	//#else
-	//$$ private static World timeCost_spawningEnd(World world)
+	//$$ private static Level timeCost_spawningEnd(Level world)
 	//#endif
 	{
 		MetricCollector.getDimStats(world).ifPresent(ds -> ds.phaseCosts.pop(GamePhase.SPAWNING));

@@ -24,7 +24,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import net.minecraft.network.handler.SizePrepender;
+import net.minecraft.network.Varint21LengthFieldPrepender;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-@Mixin(SizePrepender.class)
+@Mixin(Varint21LengthFieldPrepender.class)
 public abstract class SizePrependerMixin
 {
 	@Inject(

@@ -20,11 +20,11 @@
 
 package me.fallenbreath.tmcexporter.metric.collect.fake;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 public interface ServerWorldAssociated
 {
-	void setServerWorld$TMCE(ServerWorld world);
+	void setServerWorld$TMCE(ServerLevel world);
 
-	ServerWorld getServerWorld$TMCE();
+	ServerLevel getServerWorld$TMCE();
 }

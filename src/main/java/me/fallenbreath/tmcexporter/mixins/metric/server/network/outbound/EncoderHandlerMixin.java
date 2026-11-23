@@ -24,9 +24,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
 import me.fallenbreath.tmcexporter.utils.NetworkUtils;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.handler.EncoderHandler;
-import net.minecraft.network.packet.Packet;
+import net.minecraft.network.ProtocolInfo;
+import net.minecraft.network.PacketEncoder;
+import net.minecraft.network.protocol.Packet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,14 +34,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EncoderHandler.class)
+@Mixin(PacketEncoder.class)
 public abstract class EncoderHandlerMixin
 {
 	@Shadow @Final
-	private NetworkState<?> state;
+	private ProtocolInfo<?> protocolInfo;
 
 	@Inject(
-			method = "encode(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;Lio/netty/buffer/ByteBuf;)V",
+			method = "encode(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;Lio/netty/buffer/ByteBuf;)V",
 			at = @At(
 					value = "INVOKE",
 					target = "Lio/netty/buffer/ByteBuf;readableBytes()I",
@@ -51,8 +51,8 @@ public abstract class EncoderHandlerMixin
 	private void network_recordOutboundTrafficId(CallbackInfo ci, @Local(argsOnly = true) ChannelHandlerContext ctx, @Local(argsOnly = true) Packet<?> packet)
 	{
 		NetworkStats.PacketInfo info = new NetworkStats.PacketInfo();
-		info.packetId = NetworkUtils.getPacketId(this.state, packet.getPacketType());
-		info.packetName = this.state.id().getId() + "/" + packet.getPacketType().toString();
+		info.packetId = NetworkUtils.getPacketId(this.protocolInfo, packet.type());
+		info.packetName = this.protocolInfo.id().id() + "/" + packet.type().toString();
 		ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_OUTBOUND).set(info);
 	}
 }

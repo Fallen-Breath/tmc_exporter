@@ -22,8 +22,8 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.timecost;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,21 +31,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerChunkManager.class)
+@Mixin(ServerChunkCache.class)
 public abstract class ServerChunkManagerMixin
 {
-	@Shadow @Final private ServerWorld world;
+	@Shadow @Final private ServerLevel level;
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void timeCost_chunkManagingStart(CallbackInfo ci)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.phaseCosts.push(GamePhase.CHUNK_MANAGING));
+		MetricCollector.getDimStats(this.level).ifPresent(ds -> ds.phaseCosts.push(GamePhase.CHUNK_MANAGING));
 	}
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void timeCost_chunkManagingEnd(CallbackInfo ci)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> {
+		MetricCollector.getDimStats(this.level).ifPresent(ds -> {
 			ds.phaseCosts.pop(GamePhase.CHUNK_MANAGING);
 			ds.phaseCosts.reset();
 		});

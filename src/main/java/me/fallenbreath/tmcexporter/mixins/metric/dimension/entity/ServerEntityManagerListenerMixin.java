@@ -22,10 +22,10 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.entity;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityAccess;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,21 +33,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(targets = "net.minecraft.server.world.ServerEntityManager.Listener")
+@Mixin(targets = "net.minecraft.world.level.entity.PersistentEntitySectionManager$Callback")
 public abstract class ServerEntityManagerListenerMixin
 {
 	@Shadow
 	@Final
-	private EntityLike entity;
+	private EntityAccess entity;
 
-	@Inject(method = "remove", at = @At("HEAD"))
+	@Inject(method = "onRemove", at = @At("HEAD"))
 	private void countEntityRemove(CallbackInfo ci)
 	{
 		if (this.entity instanceof Entity)
 		{
 			Entity e = (Entity)this.entity;
-			World world = e.getEntityWorld();
-			if (world instanceof ServerWorld)
+			Level world = e.getCommandSenderWorld();
+			if (world instanceof ServerLevel)
 			{
 				MetricCollector.getDimStats(world).ifPresent(ds -> {
 					ds.entity.access(IdentifierUtils.of(e.getType()), v -> v.removed++);

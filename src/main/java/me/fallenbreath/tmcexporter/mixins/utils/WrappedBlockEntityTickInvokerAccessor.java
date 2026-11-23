@@ -20,14 +20,14 @@
 
 package me.fallenbreath.tmcexporter.mixins.utils;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(targets = "net.minecraft.world.chunk.WorldChunk$WrappedBlockEntityTickInvoker")
+@Mixin(targets = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper")
 public interface WrappedBlockEntityTickInvokerAccessor<T extends BlockEntity>
 {
 	@Accessor
-	BlockEntityTickInvoker getWrapped();
+	TickingBlockEntity getTicker();
 }

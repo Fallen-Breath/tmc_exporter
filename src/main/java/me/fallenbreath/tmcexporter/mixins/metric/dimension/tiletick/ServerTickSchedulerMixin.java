@@ -26,10 +26,10 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.collect.fake.ServerWorldAssociated;
 import me.fallenbreath.tmcexporter.metric.common.TileTickKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.tick.ChunkTickScheduler;
-import net.minecraft.world.tick.OrderedTick;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ticks.LevelChunkTicks;
+import net.minecraft.world.ticks.ScheduledTick;
+import net.minecraft.world.ticks.LevelTicks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,32 +37,32 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(WorldTickScheduler.class)
+@Mixin(LevelTicks.class)
 public abstract class ServerTickSchedulerMixin<T> implements ServerWorldAssociated
 {
 	@Unique
-	private ServerWorld serverWorld$TMCE;
+	private ServerLevel serverWorld$TMCE;
 
 	@Override
-	public void setServerWorld$TMCE(ServerWorld world)
+	public void setServerWorld$TMCE(ServerLevel world)
 	{
 		this.serverWorld$TMCE = world;
 	}
 
 	@Override
-	public ServerWorld getServerWorld$TMCE()
+	public ServerLevel getServerWorld$TMCE()
 	{
 		return this.serverWorld$TMCE;
 	}
 
 	@ModifyVariable(
-			method = "tick(Ljava/util/function/BiConsumer;)V",
+			method = "runCollectedTicks(Ljava/util/function/BiConsumer;)V",
 			at = @At(
 					value = "INVOKE",
 					target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"
 			)
 	)
-	private OrderedTick<T> countTileTickTicked(OrderedTick<T> t)
+	private ScheduledTick<T> countTileTickTicked(ScheduledTick<T> t)
 	{
 		MetricCollector.getDimStats(this.serverWorld$TMCE).ifPresent(ds -> {
 			TileTickKey key = TileTickKey.ofTileTickObject(t.type());
@@ -75,33 +75,33 @@ public abstract class ServerTickSchedulerMixin<T> implements ServerWorldAssociat
 	}
 
 	@Inject(
-			method = "scheduleTick",
+			method = "schedule",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/tick/ChunkTickScheduler;scheduleTick(Lnet/minecraft/world/tick/OrderedTick;)V"
+					target = "Lnet/minecraft/world/ticks/LevelChunkTicks;schedule(Lnet/minecraft/world/ticks/ScheduledTick;)V"
 			)
 	)
 	private void startScheduleTileTickEvent(
 			CallbackInfo ci,
-			@Local ChunkTickScheduler<T> chunkTickScheduler,
+			@Local LevelChunkTicks<T> chunkTickScheduler,
 			@Share("oldListSize") LocalIntRef oldListSize
 	)
 	{
-		oldListSize.set(chunkTickScheduler.getTickCount());
+		oldListSize.set(chunkTickScheduler.count());
 	}
 
 	@Inject(
-			method = "scheduleTick",
+			method = "schedule",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/tick/ChunkTickScheduler;scheduleTick(Lnet/minecraft/world/tick/OrderedTick;)V",
+					target = "Lnet/minecraft/world/ticks/LevelChunkTicks;schedule(Lnet/minecraft/world/ticks/ScheduledTick;)V",
 					shift = At.Shift.AFTER
 			)
 	)
 	private void endScheduleTileTickEvent(
 			CallbackInfo ci,
-			@Local(argsOnly = true) OrderedTick<T> t,
-			@Local ChunkTickScheduler<T> chunkTickScheduler,
+			@Local(argsOnly = true) ScheduledTick<T> t,
+			@Local LevelChunkTicks<T> chunkTickScheduler,
 			@Share("oldListSize") LocalIntRef oldListSize
 	)
 	{
@@ -110,7 +110,7 @@ public abstract class ServerTickSchedulerMixin<T> implements ServerWorldAssociat
 			if (key != null)
 			{
 				ds.tileTick.access(key, v -> {
-					boolean success = chunkTickScheduler.getTickCount() > oldListSize.get();
+					boolean success = chunkTickScheduler.count() > oldListSize.get();
 					if (success)
 					{
 						v.schedule_succeeded++;

@@ -23,27 +23,27 @@ package me.fallenbreath.tmcexporter.mixins.metric.server.network.inbound;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import net.minecraft.network.encoding.VarInts;
-import net.minecraft.network.handler.SplitterHandler;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.Varint21FrameDecoder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(SplitterHandler.class)
+@Mixin(Varint21FrameDecoder.class)
 public abstract class SplitterHandlerMixin
 {
 	@ModifyVariable(
 			method = "decode",
 			at = @At(
 					value = "FIELD",
-					target = "Lnet/minecraft/network/handler/SplitterHandler;packetSizeLogger:Lnet/minecraft/network/handler/PacketSizeLogger;",
+					target = "Lnet/minecraft/network/Varint21FrameDecoder;monitor:Lnet/minecraft/network/BandwidthDebugMonitor;",
 					ordinal = 0
 			)
 	)
 	private int network_recordInboundTrafficSize(int packetSize, @Local(argsOnly = true) ChannelHandlerContext ctx)
 	{
 		NetworkStats.PacketInfo info = new NetworkStats.PacketInfo();
-		int headerSize = VarInts.getSizeInBytes(packetSize);
+		int headerSize = VarInt.getByteSize(packetSize);
 		info.headerSize = headerSize;
 		info.packetSize = packetSize;
 		info.packetRawSize = packetSize;  // fallback value

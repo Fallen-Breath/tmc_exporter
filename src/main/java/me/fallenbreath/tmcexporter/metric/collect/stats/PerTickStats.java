@@ -24,7 +24,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.ServerStats;
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public class PerTickStats
 
 	public PerTickStats(MinecraftServer server)
 	{
-		for (ServerWorld world : server.getWorlds())
+		for (ServerLevel world : server.getAllLevels())
 		{
 			this.dimensions.put(Dimension.of(world), new DimensionStats());
 		}

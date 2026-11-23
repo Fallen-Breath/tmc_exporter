@@ -22,13 +22,13 @@ package me.fallenbreath.tmcexporter.mixins.metric.server.timecost;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
-import net.minecraft.server.function.CommandFunctionManager;
+import net.minecraft.server.ServerFunctionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(CommandFunctionManager.class)
+@Mixin(ServerFunctionManager.class)
 public abstract class CommandFunctionManagerMixin
 {
 	@Inject(method = "tick", at = @At("HEAD"))

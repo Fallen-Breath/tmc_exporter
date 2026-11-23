@@ -34,7 +34,7 @@ public abstract class MinecraftServerMixin
 			method = "runServer",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;",
+					target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;",
 					ordinal = 0
 			)
 	)
@@ -43,21 +43,17 @@ public abstract class MinecraftServerMixin
 		TmcExporterHooks.onServerInitDone((MinecraftServer)(Object)this);
 	}
 
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(method = "tickServer", at = @At("HEAD"))
 	private void serverTickStartHook(CallbackInfo ci)
 	{
 		TmcExporterHooks.onServerTickStart((MinecraftServer) (Object) this);
 	}
 
 	@Inject(
-			//#if MC >= 11700
-			method = "runTasksTillTickEnd",
-			//#else
-			//$$ method = "method_16208",
-			//#endif
+			method = "waitUntilNextTick",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/MinecraftServer;runTasks(Ljava/util/function/BooleanSupplier;)V"
+					target = "Lnet/minecraft/server/MinecraftServer;managedBlock(Ljava/util/function/BooleanSupplier;)V"
 			)
 	)
 	private void serverTickEndHook(CallbackInfo ci)

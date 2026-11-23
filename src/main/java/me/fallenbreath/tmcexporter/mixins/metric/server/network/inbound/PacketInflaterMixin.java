@@ -25,21 +25,21 @@ import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import net.minecraft.network.encoding.VarInts;
-import net.minecraft.network.handler.PacketInflater;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.CompressionDecoder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-@Mixin(PacketInflater.class)
+@Mixin(CompressionDecoder.class)
 public abstract class PacketInflaterMixin
 {
 	@ModifyExpressionValue(
 			method = "decode",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/network/encoding/VarInts;read(Lio/netty/buffer/ByteBuf;)I",
+					target = "Lnet/minecraft/network/VarInt;read(Lio/netty/buffer/ByteBuf;)I",
 					ordinal = 0
 			)
 	)
@@ -50,7 +50,7 @@ public abstract class PacketInflaterMixin
 	)
 	{
 		Optional.ofNullable(ctx.channel().attr(NetworkStats.ATTR_PACKET_INFO_INBOUND).get()).ifPresent(info -> {
-			int compressHeaderSize = VarInts.getSizeInBytes(uncompressedSize);
+			int compressHeaderSize = VarInt.getByteSize(uncompressedSize);
 			if (uncompressedSize == 0)
 			{
 				info.packetRawSize = compressHeaderSize + buf.readableBytes();

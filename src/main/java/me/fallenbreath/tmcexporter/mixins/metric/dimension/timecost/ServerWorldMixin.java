@@ -23,7 +23,7 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.timecost;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.metric.collect.TimeCostRecorder;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin
 {
 	@Unique
@@ -41,7 +41,7 @@ public abstract class ServerWorldMixin
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void timeCost_getDimensionStats(CallbackInfo ci)
 	{
-		this.phaseCosts = MetricCollector.getDimStats((ServerWorld)(Object)this).
+		this.phaseCosts = MetricCollector.getDimStats((ServerLevel)(Object)this).
 				map(ds -> ds.phaseCosts).
 				orElse(null);
 	}
@@ -100,7 +100,7 @@ public abstract class ServerWorldMixin
 		}
 	}
 
-	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;tickBlockEntities()V"))
+	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tickBlockEntities()V"))
 	private void timeCost_entityEnd_blockEntityStart(CallbackInfo ci)
 	{
 		if (this.phaseCosts != null)
@@ -109,7 +109,7 @@ public abstract class ServerWorldMixin
 		}
 	}
 
-	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;tickBlockEntities()V", shift = At.Shift.AFTER))
+	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tickBlockEntities()V", shift = At.Shift.AFTER))
 	private void timeCost_blockEntityEnd(CallbackInfo ci)
 	{
 		if (this.phaseCosts != null)

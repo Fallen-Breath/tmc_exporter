@@ -33,7 +33,7 @@ import me.fallenbreath.tmcexporter.metric.registry.vanilla.DimensionMetrics;
 import me.fallenbreath.tmcexporter.metric.registry.vanilla.ServerMetrics;
 import me.fallenbreath.tmcexporter.metric.registry.vanilla.TimeCostMetrics;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.function.BiConsumer;
 
@@ -75,10 +75,10 @@ public class MetricExporter
 		ServerMetrics.SERVER_UPTIME.set(serverStats.uptimeNs / 1e9);
 		ServerMetrics.SERVER_TICK_COUNT.inc(serverStats.tickedServerTick);
 
-		ServerWorld overworld = this.server.getOverworld();
+		ServerLevel overworld = this.server.overworld();
 		ServerMetrics.GAME_TICK_COUNT.inc(serverStats.tickedGameTick);
-		ServerMetrics.GAME_GAME_TIME.set(overworld.getTime());
-		ServerMetrics.GAME_DAY_TIME.set(overworld.getTimeOfDay());
+		ServerMetrics.GAME_GAME_TIME.set(overworld.getGameTime());
+		ServerMetrics.GAME_DAY_TIME.set(overworld.getDayTime());
 
 		ServerMetrics.PLAYER_COUNT.set(serverStats.playerCount);
 		ServerMetrics.PLAYER_MAX.set(serverStats.playerMax);

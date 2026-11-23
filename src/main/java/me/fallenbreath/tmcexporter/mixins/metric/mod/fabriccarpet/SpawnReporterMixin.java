@@ -27,9 +27,9 @@ import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import me.fallenbreath.tmcexporter.metric.exporter.FabricCarpetExporter;
 import me.fallenbreath.tmcexporter.utils.ModIds;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,10 +42,10 @@ import java.util.function.BiFunction;
 @Mixin(SpawnReporter.class)
 public abstract class SpawnReporterMixin
 {
-	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<RegistryKey<World>, SpawnGroup>> spawn_ticks_full;
-	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<RegistryKey<World>, SpawnGroup>> spawn_ticks_fail;
-	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<RegistryKey<World>, SpawnGroup>> spawn_ticks_succ;
-	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<RegistryKey<World>, SpawnGroup>> spawn_ticks_spawns;
+	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<ResourceKey<Level>, MobCategory>> spawn_ticks_full;
+	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<ResourceKey<Level>, MobCategory>> spawn_ticks_fail;
+	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<ResourceKey<Level>, MobCategory>> spawn_ticks_succ;
+	@Shadow(remap = false) @Final @Mutable public static Object2LongOpenHashMap<Pair<ResourceKey<Level>, MobCategory>> spawn_ticks_spawns;
 
 	@Unique
 	private static <K> Object2LongOpenHashMap<K> hookObject2LongOpenHashMapAddTo(BiFunction<K, Long, Void> callback)

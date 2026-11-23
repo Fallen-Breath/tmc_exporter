@@ -21,10 +21,10 @@
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
 import me.fallenbreath.tmcexporter.metric.collect.fake.ServerWorldAssociated;
-import net.minecraft.block.Block;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ticks.LevelTicks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,17 +32,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin
 {
-	@Shadow @Final private WorldTickScheduler<Block> blockTickScheduler;
-	@Shadow @Final private WorldTickScheduler<Fluid> fluidTickScheduler;
+	@Shadow @Final private LevelTicks<Block> blockTicks;
+	@Shadow @Final private LevelTicks<Fluid> fluidTicks;
 
 	@Inject(method = "<init>", 	at = @At("TAIL"))
 	private void associateSelfToTickSchedulers(CallbackInfo ci)
 	{
-		ServerWorld self = (ServerWorld)(Object)this;
-		((ServerWorldAssociated)this.blockTickScheduler).setServerWorld$TMCE(self);
-		((ServerWorldAssociated)this.fluidTickScheduler).setServerWorld$TMCE(self);
+		ServerLevel self = (ServerLevel)(Object)this;
+		((ServerWorldAssociated)this.blockTicks).setServerWorld$TMCE(self);
+		((ServerWorldAssociated)this.fluidTicks).setServerWorld$TMCE(self);
 	}
 }

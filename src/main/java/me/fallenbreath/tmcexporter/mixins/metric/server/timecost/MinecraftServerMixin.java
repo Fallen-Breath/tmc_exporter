@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftServerMixin
 {
 	@Inject(
-			method = "tick", at = {
+			method = "tickServer", at = {
 					@At("HEAD"),
 					@At("TAIL")
 			}
@@ -45,9 +45,9 @@ public abstract class MinecraftServerMixin
 
 	@Inject(
 			//#if MC >= 1.21.3
-			method = "runAutosave",
+			method = "autoSave",
 			//#else
-			//$$ method = "tick",
+			//$$ method = "tickServer",
 			//#endif
 			at = @At(
 					value = "CONSTANT",
@@ -61,9 +61,9 @@ public abstract class MinecraftServerMixin
 
 	@Inject(
 			//#if MC >= 1.21.3
-			method = "runAutosave",
+			method = "autoSave",
 			//#else
-			//$$ method = "tick",
+			//$$ method = "tickServer",
 			//#endif
 			at = @At(
 					value = "CONSTANT",
@@ -76,11 +76,7 @@ public abstract class MinecraftServerMixin
 	}
 
 	@Inject(
-			//#if MC >= 11700
-			method = "runTasksTillTickEnd",
-			//#else
-			//$$ method = "method_16208",
-			//#endif
+			method = "waitUntilNextTick",
 			at = @At("HEAD")
 	)
 	private void timeCost_asyncTaskStart(CallbackInfo ci)
@@ -89,14 +85,10 @@ public abstract class MinecraftServerMixin
 	}
 
 	@Inject(
-			//#if MC >= 11700
-			method = "runTasksTillTickEnd",
-			//#else
-			//$$ method = "method_16208",
-			//#endif
+			method = "waitUntilNextTick",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/MinecraftServer;runTasks()V",
+					target = "Lnet/minecraft/server/MinecraftServer;runAllTasks()V",
 					shift = At.Shift.AFTER
 			)
 	)

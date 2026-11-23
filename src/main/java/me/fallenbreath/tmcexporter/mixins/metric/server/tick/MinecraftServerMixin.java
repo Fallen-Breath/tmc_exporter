@@ -30,13 +30,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin
 {
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(method = "tickServer", at = @At("HEAD"))
 	private void onServerTick(CallbackInfo ci)
 	{
 		MetricCollector.getServerStats().ifPresent(s -> s.tickedServerTick++);
 	}
 
-	@Inject(method = "tickWorlds", at = @At("TAIL"))
+	@Inject(method = "tickChildren", at = @At("TAIL"))
 	private void onGameTick(CallbackInfo ci)
 	{
 		MetricCollector.getServerStats().ifPresent(s -> s.tickedGameTick++);

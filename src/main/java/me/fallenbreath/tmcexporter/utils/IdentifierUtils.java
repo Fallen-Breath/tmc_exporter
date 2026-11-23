@@ -20,37 +20,37 @@
 
 package me.fallenbreath.tmcexporter.utils;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 public class IdentifierUtils
 {
-	public static String IdToString(Identifier identifier)
+	public static String IdToString(ResourceLocation identifier)
 	{
 		return identifier.getNamespace().equals("minecraft") ? identifier.getPath() : identifier.toString();
 	}
 
-	public static Identifier of(Block block)
+	public static ResourceLocation of(Block block)
 	{
-		return Registries.BLOCK.getId(block);
+		return BuiltInRegistries.BLOCK.getKey(block);
 	}
 
-	public static Identifier of(Fluid fluid)
+	public static ResourceLocation of(Fluid fluid)
 	{
-		return Registries.FLUID.getId(fluid);
+		return BuiltInRegistries.FLUID.getKey(fluid);
 	}
 
-	public static Identifier of(EntityType<?> entityType)
+	public static ResourceLocation of(EntityType<?> entityType)
 	{
-		return Registries.ENTITY_TYPE.getId(entityType);
+		return BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
 	}
 
-	public static Identifier of(BlockEntityType<?> blockEntityType)
+	public static ResourceLocation of(BlockEntityType<?> blockEntityType)
 	{
-		return Registries.BLOCK_ENTITY_TYPE.getId(blockEntityType);
+		return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType);
 	}
 }

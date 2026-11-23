@@ -29,7 +29,7 @@ public class StaticStats
 
 	public StaticStats(MinecraftServer server)
 	{
-		this.worldName = server.getSaveProperties().getLevelName();
+		this.worldName = server.getWorldData().getLevelName();
 		this.startupTimeStampNs = System.nanoTime();
 	}
 }

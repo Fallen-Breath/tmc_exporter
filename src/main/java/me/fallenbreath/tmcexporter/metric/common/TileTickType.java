@@ -20,25 +20,25 @@
 
 package me.fallenbreath.tmcexporter.metric.common;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ticks.LevelTicks;
 
 import java.util.function.Function;
 
 public enum TileTickType
 {
-	BLOCK(ServerWorld::getBlockTickScheduler),
-	FLUID(ServerWorld::getFluidTickScheduler),
+	BLOCK(ServerLevel::getBlockTicks),
+	FLUID(ServerLevel::getFluidTicks),
 	;
 
-	private final Function<ServerWorld, WorldTickScheduler<?>> schedulerGetter;
+	private final Function<ServerLevel, LevelTicks<?>> schedulerGetter;
 
-	TileTickType(Function<ServerWorld, WorldTickScheduler<?>> schedulerGetter)
+	TileTickType(Function<ServerLevel, LevelTicks<?>> schedulerGetter)
 	{
 		this.schedulerGetter = schedulerGetter;
 	}
 
-	public WorldTickScheduler<?> getSchedulerFromWorld(ServerWorld world)
+	public LevelTicks<?> getSchedulerFromWorld(ServerLevel world)
 	{
 		return this.schedulerGetter.apply(world);
 	}

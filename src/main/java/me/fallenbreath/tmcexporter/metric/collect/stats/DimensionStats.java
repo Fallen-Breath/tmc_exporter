@@ -24,16 +24,16 @@ import me.fallenbreath.tmcexporter.metric.collect.TimeCostRecorder;
 import me.fallenbreath.tmcexporter.metric.collect.stats.dimension.*;
 import me.fallenbreath.tmcexporter.metric.common.GamePhase;
 import me.fallenbreath.tmcexporter.metric.common.TileTickKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class DimensionStats
 {
 	public final TimeCostRecorder<GamePhase> phaseCosts = new TimeCostRecorder<>();
 
 	public final StatsMap<TileTickKey, TileTickStats> tileTick = new StatsMap<>(TileTickStats::new);
-	public final StatsMap<Identifier, BlockEventStats> blockEvent = new StatsMap<>(BlockEventStats::new);
-	public final StatsMap<Identifier, EntityStats> entity = new StatsMap<>(EntityStats::new);
-	public final StatsMap<Identifier, TileEntityStats> tileEntity = new StatsMap<>(TileEntityStats::new);
+	public final StatsMap<ResourceLocation, BlockEventStats> blockEvent = new StatsMap<>(BlockEventStats::new);
+	public final StatsMap<ResourceLocation, EntityStats> entity = new StatsMap<>(EntityStats::new);
+	public final StatsMap<ResourceLocation, TileEntityStats> tileEntity = new StatsMap<>(TileEntityStats::new);
 
 	public final ChunkStats chunk = new ChunkStats();
 }

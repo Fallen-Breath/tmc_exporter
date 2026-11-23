@@ -39,20 +39,20 @@ import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.ChunkTickSch
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.WorldTickSchedulerAccessor;
 import me.fallenbreath.tmcexporter.utils.BlockEntityUtils;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerChunkLoadingManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.entity.EntityTrackingStatus;
-import net.minecraft.world.entity.SectionedEntityCache;
-import net.minecraft.world.tick.ChunkTickScheduler;
-import net.minecraft.world.tick.OrderedTick;
-import net.minecraft.world.tick.Tick;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.entity.Visibility;
+import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.ticks.LevelChunkTicks;
+import net.minecraft.world.ticks.ScheduledTick;
+import net.minecraft.world.ticks.SavedTick;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.management.ManagementFactory;
@@ -123,7 +123,7 @@ public class MetricCollector
 	private void fillThisTickStats()
 	{
 		this.fillServerStats(this.perTickStats.server);
-		for (ServerWorld world : this.server.getWorlds())
+		for (ServerLevel world : this.server.getAllLevels())
 		{
 			this.fillDimensionStats(world, Objects.requireNonNull(this.perTickStats.dimensions.get(Dimension.of(world))));
 		}
@@ -131,15 +131,15 @@ public class MetricCollector
 
 	private void fillServerStats(ServerStats stats)
 	{
-		ServerWorld overworld = this.server.getWorld(World.OVERWORLD);
+		ServerLevel overworld = this.server.getLevel(Level.OVERWORLD);
 
-		stats.tickCounter = this.server.getTicks();
+		stats.tickCounter = this.server.getTickCount();
 		stats.uptimeNs = System.nanoTime() - this.staticStats.startupTimeStampNs;
-		stats.gameTime = overworld != null ? overworld.getTime() : 0;
-		stats.dayTime = overworld != null ? overworld.getTimeOfDay() : 0;
+		stats.gameTime = overworld != null ? overworld.getGameTime() : 0;
+		stats.dayTime = overworld != null ? overworld.getDayTime() : 0;
 		stats.tickCostNs = stats.tickEndNs - stats.tickStartNs;
-		stats.playerCount = this.server.getCurrentPlayerCount();
-		stats.playerMax = this.server.getMaxPlayerCount();
+		stats.playerCount = this.server.getPlayerCount();
+		stats.playerMax = this.server.getMaxPlayers();
 
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
@@ -151,39 +151,39 @@ public class MetricCollector
 		stats.jvmMemoryNonHeap = nonHeapMemoryUsage.getUsed();
 	}
 
-	private void fillDimensionStats(ServerWorld world, DimensionStats stats)
+	private void fillDimensionStats(ServerLevel world, DimensionStats stats)
 	{
-		ServerChunkLoadingManager tacs = world.getChunkManager().chunkLoadingManager;
-		List<WorldChunk> loadedChunks = Lists.newArrayList();
-		for (ChunkHolder chunkHolder : ((ThreadedAnvilChunkStorageAccessor)tacs).getCurrentChunkHolders().values())
+		ChunkMap tacs = world.getChunkSource().chunkMap;
+		List<LevelChunk> loadedChunks = Lists.newArrayList();
+		for (ChunkHolder chunkHolder : ((ThreadedAnvilChunkStorageAccessor)tacs).getUpdatingChunkMap().values())
 		{
-			WorldChunk chunk = chunkHolder.getWorldChunk();
+			LevelChunk chunk = chunkHolder.getTickingChunk();
 			if (chunk != null)
 			{
 				loadedChunks.add(chunk);
 			}
 
-			ChunkStatus status = ChunkStatus.fromLevel(chunkHolder.getLevel());
+			ChunkStatus status = ChunkStatus.fromLevel(chunkHolder.getTicketLevel());
 			stats.chunk.loaded.put(status, stats.chunk.loaded.getOrDefault(status, 0) + 1);
 		}
 
 		for (TileTickType tileTickType : TileTickType.values())
 		{
-			for (ChunkTickScheduler<?> cts : ((WorldTickSchedulerAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getChunkTickSchedulers().values())
+			for (LevelChunkTicks<?> cts : ((WorldTickSchedulerAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getAllContainers().values())
 			{
 				ChunkTickSchedulerAccessor<?> ctsAccess = (ChunkTickSchedulerAccessor<?>)cts;
-				List<? extends Tick<?>> ticks = ctsAccess.getTicks();
-				Queue<? extends OrderedTick<?>> tickQueue = ctsAccess.getTickQueue();
+				List<? extends SavedTick<?>> ticks = ctsAccess.getPendingTicks();
+				Queue<? extends ScheduledTick<?>> tickQueue = ctsAccess.getTickQueue();
 				if (ticks != null)
 				{
-					for (Tick<?> t : ticks)
+					for (SavedTick<?> t : ticks)
 					{
 						stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
 					}
 				}
 				if (tickQueue != null)
 				{
-					for (OrderedTick<?> t : tickQueue)
+					for (ScheduledTick<?> t : tickQueue)
 					{
 						stats.tileTick.access(TileTickKey.ofTileTickObject(t.type()), tts -> tts.amount++);
 					}
@@ -192,15 +192,15 @@ public class MetricCollector
 		}
 
 		@SuppressWarnings("unchecked")
-		SectionedEntityCache<Entity> entityCache = ((ServerEntityManagerAccessor<Entity>)((ServerWorldAccessor)world).getEntityManager()).getCache();
-		for (Long chunkPosLong : entityCache.getChunkPositions())
+		EntitySectionStorage<Entity> entityCache = ((ServerEntityManagerAccessor<Entity>)((ServerWorldAccessor)world).getEntityManager()).getSectionStorage();
+		for (Long chunkPosLong : entityCache.getAllChunksWithExistingSections())
 		{
-			entityCache.getTrackingSections(chunkPosLong).forEach(section -> {
-				section.stream().forEach(entity -> {
-					Identifier eId = IdentifierUtils.of(entity.getType());
+			entityCache.getExistingSectionsInChunk(chunkPosLong).forEach(section -> {
+				section.getEntities().forEach(entity -> {
+					ResourceLocation eId = IdentifierUtils.of(entity.getType());
 					stats.entity.access(eId, es -> {
 						es.total++;
-						if (section.getStatus() == EntityTrackingStatus.TICKING)
+						if (section.getStatus() == Visibility.TICKING)
 						{
 							es.ticking++;
 						}
@@ -209,7 +209,7 @@ public class MetricCollector
 			});
 		}
 
-		for (WorldChunk chunk : loadedChunks)
+		for (LevelChunk chunk : loadedChunks)
 		{
 			for (BlockEntity blockEntity : ((ChunkAccessor)chunk).getBlockEntities().values())
 			{
@@ -236,7 +236,7 @@ public class MetricCollector
 		return getInstance().isInitialized() ? Optional.of(getInstance().perTickStats.server) : Optional.empty();
 	}
 
-	public static Optional<DimensionStats> getDimStats(@Nullable World world)
+	public static Optional<DimensionStats> getDimStats(@Nullable Level world)
 	{
 		if (!getInstance().isInitialized() || world == null)
 		{

@@ -21,9 +21,9 @@
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.chunk;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerChunkLoadingManager;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,14 +32,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerChunkLoadingManager.class)
+@Mixin(ChunkMap.class)
 public abstract class ThreadedAnvilChunkStorageMixin
 {
 	@Shadow @Final
-	ServerWorld world;
+	ServerLevel level;
 
 	@Inject(
-			method = "setLevel",
+			method = "updateChunkScheduling",
 			at = @At(
 					value = "INVOKE",
 					target = "Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;put(JLjava/lang/Object;)Ljava/lang/Object;",
@@ -48,18 +48,18 @@ public abstract class ThreadedAnvilChunkStorageMixin
 	)
 	private void countChunkLoad(CallbackInfoReturnable<ChunkHolder> cir)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.added++);
+		MetricCollector.getDimStats(this.level).ifPresent(ds -> ds.chunk.added++);
 	}
 
 	@Inject(
-			method = "unloadChunks",
+			method = "processUnloads",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/world/ServerChunkLoadingManager;tryUnloadChunk(JLnet/minecraft/server/world/ChunkHolder;)V"
+					target = "Lnet/minecraft/server/level/ChunkMap;scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"
 			)
 	)
 	private void countChunkUnload(CallbackInfo ci)
 	{
-		MetricCollector.getDimStats(this.world).ifPresent(ds -> ds.chunk.removed++);
+		MetricCollector.getDimStats(this.level).ifPresent(ds -> ds.chunk.removed++);
 	}
 }

@@ -20,10 +20,10 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.server.network;
 
-import net.minecraft.server.ServerNetworkIo;
+import net.minecraft.server.network.ServerConnectionListener;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ServerNetworkIo.class)
+@Mixin(ServerConnectionListener.class)
 public abstract class ServerNetworkIoMixin
 {
 }

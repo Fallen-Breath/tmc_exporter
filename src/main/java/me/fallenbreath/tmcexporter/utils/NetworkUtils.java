@@ -21,16 +21,16 @@
 package me.fallenbreath.tmcexporter.utils;
 
 import me.fallenbreath.tmcexporter.mixins.network.PacketCodecDispatcherAccessor;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.handler.PacketCodecDispatcher;
-import net.minecraft.network.packet.PacketType;
+import net.minecraft.network.ProtocolInfo;
+import net.minecraft.network.codec.IdDispatchCodec;
+import net.minecraft.network.protocol.PacketType;
 
 public class NetworkUtils
 {
 	@SuppressWarnings("rawtypes")
-	public static int getPacketId(NetworkState<?> state, PacketType<?> packetType)
+	public static int getPacketId(ProtocolInfo<?> state, PacketType<?> packetType)
 	{
-		if (state.codec() instanceof PacketCodecDispatcher)
+		if (state.codec() instanceof IdDispatchCodec)
 		{
 			return ((PacketCodecDispatcherAccessor)state.codec()).getTypeToIndex$TMCE().getInt(packetType);
 		}

@@ -27,9 +27,9 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.block.Block;
-import net.minecraft.server.world.BlockEvent;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.BlockEventData;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,39 +37,39 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin
 {
 	@Shadow @Final
-	private ObjectLinkedOpenHashSet<BlockEvent> syncedBlockEventQueue;
+	private ObjectLinkedOpenHashSet<BlockEventData> blockEvents;
 
-	@Inject(method = "addSyncedBlockEvent", at = @At("HEAD"))
+	@Inject(method = "blockEvent", at = @At("HEAD"))
 	private void countBlockEventAdd_storeSizeBefore(CallbackInfo ci, @Share("") LocalIntRef sizeBeforeAdd)
 	{
-		sizeBeforeAdd.set(this.syncedBlockEventQueue.size());
+		sizeBeforeAdd.set(this.blockEvents.size());
 	}
 
-	@Inject(method = "addSyncedBlockEvent", at = @At("TAIL"))
+	@Inject(method = "blockEvent", at = @At("TAIL"))
 	private void countBlockEventAdd_compareSizeAndRecord(CallbackInfo ci, @Local(argsOnly = true) Block block, @Share("") LocalIntRef sizeBeforeAdd)
 	{
-		if (sizeBeforeAdd.get() + 1 == this.syncedBlockEventQueue.size())
+		if (sizeBeforeAdd.get() + 1 == this.blockEvents.size())
 		{
-			MetricCollector.getDimStats((ServerWorld)(Object)this).ifPresent(ds -> {
+			MetricCollector.getDimStats((ServerLevel)(Object)this).ifPresent(ds -> {
 				ds.blockEvent.access(IdentifierUtils.of(block), v -> v.added++);
 			});
 		}
 	}
 
 	@ModifyExpressionValue(
-			method = "processSyncedBlockEvents",
+			method = "runBlockEvents",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/world/ServerWorld;processBlockEvent(Lnet/minecraft/server/world/BlockEvent;)Z"
+					target = "Lnet/minecraft/server/level/ServerLevel;doBlockEvent(Lnet/minecraft/world/level/BlockEventData;)Z"
 			)
 	)
-	private boolean countBlockEventTicked(boolean tickOk, @Local BlockEvent blockEvent)
+	private boolean countBlockEventTicked(boolean tickOk, @Local BlockEventData blockEvent)
 	{
-		MetricCollector.getDimStats((ServerWorld)(Object)this).ifPresent(ds -> {
+		MetricCollector.getDimStats((ServerLevel)(Object)this).ifPresent(ds -> {
 			ds.blockEvent.access(IdentifierUtils.of(blockEvent.block()), v -> {
 				v.removed++;
 				if (tickOk)
