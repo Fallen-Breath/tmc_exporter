@@ -3,7 +3,7 @@ final boolean unobfuscated = mcVersion >= 26_00_00
 
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.hierynomus.license'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: unobfuscated ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
@@ -165,13 +165,9 @@ afterEvaluate {
 shadowJar {
 	configurations = [project.configurations.shadow]
 	exclude("META-INF")
+	enableAutoRelocation = true
+	relocationPrefix = 'me.fallenbreath.tmcexporter.libs'
 	archiveClassifier.set('shadow')
-}
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-tasks.withType(ShadowJar).configureEach {
-	enableRelocation true
-	relocationPrefix 'me.fallenbreath.tmcexporter.libs'
 }
 
 remapJar {
