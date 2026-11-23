@@ -1,26 +1,35 @@
+final int mcVersion = project.mcVersion
+final boolean unobfuscated = mcVersion >= 26_00_00
+
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.hierynomus.license'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'fabric-loom'
+apply plugin: unobfuscated ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
 
-int mcVersion = project.mcVersion
-
 repositories {
+	maven {
+		url = 'https://maven.parchmentmc.org'
+		content { includeGroup('org.parchmentmc.data') }
+	}
+	maven {
+		url = 'https://jitpack.io'
+		content { includeGroupAndSubgroups('com.github') }
+	}
 	maven {
 		url = 'https://masa.dy.fi/maven'
 	}
 	maven {
 		url = 'https://maven.fallenbreath.me/releases'
+		content {
+			includeGroup('me.fallenbreath')
+			includeGroup('carpettisaddition')
+		}
 	}
 }
 
-// https://github.com/FabricMC/fabric-loader/issues/783
-configurations {
-	modRuntimeOnly.exclude group: 'net.fabricmc', module: 'fabric-loader'
-}
-
+// TODO
 def nettyVersions = [
 		12109: null,  // MC 1.21.9 already has "io.netty:netty-codec-http:xxx"
 		12105: "4.1.118.Final",
@@ -40,26 +49,47 @@ for (final def e in nettyVersions) {
 }
 
 dependencies {
+	def processDependency = { dep ->
+		// https://github.com/FabricMC/fabric-loader/issues/783
+		if (dep instanceof ModuleDependency) {
+			if (!(dep.group == 'net.fabricmc' && dep.name == 'fabric-loader')) {
+				dep.exclude group: 'net.fabricmc', module: 'fabric-loader'
+			}
+		}
+		return dep
+	}
+	def autoImplementation = { Object... args -> processDependency(unobfuscated ? implementation(*args) : modImplementation(*args)) }
+	def autoRuntimeOnly = { Object... args -> processDependency(unobfuscated ? runtimeOnly(*args) : modRuntimeOnly(*args)) }
+	def autoLocalRuntime = { Object... args -> processDependency(unobfuscated ? localRuntime(*args) : modLocalRuntime(*args)) }
+	def autoCompileOnly = { Object... args -> processDependency(unobfuscated ? compileOnly(*args) : modCompileOnly(*args)) }
+
 	// loom
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	if (!unobfuscated) {
+		mappings loom.layered() {
+			officialMojangMappings()
+			if (project.parchment_version.size() > 0) {
+				parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+			}
+		}
+	}
+	autoImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// runtime mods
 	if (mcVersion < 11904) {
-		modRuntimeOnly("com.github.Fallen-Breath:lazydfu:${mcVersion < 11900 ? "0.1.2" : "a7cfc44c0c"}")
+        autoRuntimeOnly("com.github.Fallen-Breath:lazydfu:${mcVersion < 11900 ? "0.1.2" : "a7cfc44c0c"}")
 	}
-	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
+    autoLocalRuntime "me.fallenbreath:mixin-auditor:0.3.0-${unobfuscated ? 'u' : 'o'}"
 
 	// dependencies
-	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
+    include(autoImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
     if (mcVersion < 12005) {
 		include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
 	}
 
 	// tmc mods
-	modImplementation "carpet:fabric-carpet:${project.fabric_carpet_version}"
-	modImplementation("carpettisaddition:carpet-tis-addition:${project.carpet_tis_addition_version}") {
+    autoImplementation "carpet:fabric-carpet:${project.fabric_carpet_version}"
+    autoImplementation("carpettisaddition:carpet-tis-addition:${project.carpet_tis_addition_version}") {
 		exclude group: 'carpet', module: 'fabric-carpet'
 	}
 
@@ -77,7 +107,9 @@ dependencies {
 String MIXIN_CONFIG_PATH = 'tmcexporter.mixins.json'
 String LANG_DIR = 'assets/tmcexporter/lang'
 JavaVersion JAVA_COMPATIBILITY
-if (mcVersion >= 12005) {
+if (mcVersion >= 260000) {
+	JAVA_COMPATIBILITY = JavaVersion.VERSION_25
+} else if (mcVersion >= 12005) {
 	JAVA_COMPATIBILITY = JavaVersion.VERSION_21
 } else if (mcVersion >= 11800) {
 	JAVA_COMPATIBILITY = JavaVersion.VERSION_17
@@ -109,6 +141,23 @@ loom {
 			server()
 			vmArgs auditVmArgs
 			ideConfigGenerated false
+		}
+		clientMixinAudit {
+			client()
+			vmArgs auditVmArgs
+			ideConfigGenerated false
+		}
+	}
+}
+
+// hack fix for a gradle 9.5 implicit_dependency issue
+afterEvaluate {
+	tasks.matching { it.name.startsWith('runClient') }.configureEach { runTask ->
+		parent.subprojects.findAll { it != project }.each { otherProject ->
+			def downloadAssets = otherProject.tasks.findByName('downloadAssets')
+			if (downloadAssets != null) {
+				runTask.mustRunAfter(downloadAssets)
+			}
 		}
 	}
 }
@@ -168,19 +217,16 @@ version = fullProjectVersion
 // See https://youtrack.jetbrains.com/issue/IDEA-296490
 // if IDEA complains about "Cannot resolve resource filtering of MatchingCopyAction" and you want to know why
 processResources {
-	inputs.property "id", project.mod_id
-	inputs.property "name", project.mod_name
-	inputs.property "version", fullModVersion
-	inputs.property "minecraft_dependency", project.minecraft_dependency
+	def modProperties = [
+			"id"                  : project.mod_id,
+			"name"                : project.mod_name,
+			"version"             : fullModVersion,
+			"minecraft_dependency": project.minecraft_dependency,
+	]
+	inputs.properties(modProperties)
 
 	filesMatching("fabric.mod.json") {
-		def valueMap = [
-				"id": project.mod_id,
-				"name": project.mod_name,
-				"version": fullModVersion,
-				"minecraft_dependency": project.minecraft_dependency,
-		]
-		expand valueMap
+		expand modProperties
 	}
 
 	filesMatching(MIXIN_CONFIG_PATH) {
@@ -217,8 +263,9 @@ java {
 }
 
 jar {
+	inputs.property "archives_base_name", project.archives_base_name
 	from(rootProject.file('LICENSE')) {
-		rename { "${it}_${project.archives_base_name}" }
+		rename { "${it}_${inputs.properties.archives_base_name}" }
 	}
 }
 
