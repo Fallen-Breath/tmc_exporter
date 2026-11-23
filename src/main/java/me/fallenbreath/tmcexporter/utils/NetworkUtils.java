@@ -20,7 +20,7 @@
 
 package me.fallenbreath.tmcexporter.utils;
 
-import me.fallenbreath.tmcexporter.mixins.network.PacketCodecDispatcherAccessor;
+import me.fallenbreath.tmcexporter.mixins.network.IdDispatchCodecAccessor;
 import net.minecraft.network.ProtocolInfo;
 import net.minecraft.network.codec.IdDispatchCodec;
 import net.minecraft.network.protocol.PacketType;
@@ -32,7 +32,7 @@ public class NetworkUtils
 	{
 		if (state.codec() instanceof IdDispatchCodec)
 		{
-			return ((PacketCodecDispatcherAccessor)state.codec()).getTypeToIndex$TMCE().getInt(packetType);
+			return ((IdDispatchCodecAccessor)state.codec()).getTypeToIndex$TMCE().getInt(packetType);
 		}
 		return 0;
 	}

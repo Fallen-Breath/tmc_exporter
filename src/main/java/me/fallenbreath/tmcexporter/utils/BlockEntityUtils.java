@@ -20,8 +20,8 @@
 
 package me.fallenbreath.tmcexporter.utils;
 
-import me.fallenbreath.tmcexporter.mixins.utils.DirectBlockEntityTickInvokerAccessor;
-import me.fallenbreath.tmcexporter.mixins.utils.WrappedBlockEntityTickInvokerAccessor;
+import me.fallenbreath.tmcexporter.mixins.utils.BoundTickingBlockEntityAccessor;
+import me.fallenbreath.tmcexporter.mixins.utils.RebindableTickingBlockEntityWrapperAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -35,13 +35,13 @@ public class BlockEntityUtils
 	@Nullable
 	public static BlockEntity getBlockEntityFromTickInvoker(TickingBlockEntity blockEntityTickInvoker)
 	{
-		if (blockEntityTickInvoker instanceof DirectBlockEntityTickInvokerAccessor)
+		if (blockEntityTickInvoker instanceof BoundTickingBlockEntityAccessor)
 		{
-			return ((DirectBlockEntityTickInvokerAccessor<?>) blockEntityTickInvoker).getBlockEntity();
+			return ((BoundTickingBlockEntityAccessor<?>) blockEntityTickInvoker).getBlockEntity();
 		}
-		else if (blockEntityTickInvoker instanceof WrappedBlockEntityTickInvokerAccessor)
+		else if (blockEntityTickInvoker instanceof RebindableTickingBlockEntityWrapperAccessor)
 		{
-			return getBlockEntityFromTickInvoker(((WrappedBlockEntityTickInvokerAccessor<?>)blockEntityTickInvoker).getTicker());
+			return getBlockEntityFromTickInvoker(((RebindableTickingBlockEntityWrapperAccessor<?>)blockEntityTickInvoker).getTicker());
 		}
 		return null;
 	}

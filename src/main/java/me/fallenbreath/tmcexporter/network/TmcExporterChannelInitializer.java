@@ -25,17 +25,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import me.fallenbreath.tmcexporter.mixins.network.ServerNetworkIoChannelInitializerAccessor;
+import me.fallenbreath.tmcexporter.mixins.network.ServerConnectionListenerChannelInitializerAccessor;
 
 import java.util.concurrent.TimeUnit;
 
 public class TmcExporterChannelInitializer extends ChannelInitializer<Channel>
 {
-	private final ServerNetworkIoChannelInitializerAccessor vanillaInitializer;
+	private final ServerConnectionListenerChannelInitializerAccessor vanillaInitializer;
 
 	public TmcExporterChannelInitializer(ChannelInitializer<Channel> vanillaInitializer)
 	{
-		this.vanillaInitializer = (ServerNetworkIoChannelInitializerAccessor)vanillaInitializer;
+		this.vanillaInitializer = (ServerConnectionListenerChannelInitializerAccessor)vanillaInitializer;
 	}
 
 	@Override

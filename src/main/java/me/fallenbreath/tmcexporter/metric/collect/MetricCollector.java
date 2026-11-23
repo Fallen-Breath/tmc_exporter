@@ -30,13 +30,13 @@ import me.fallenbreath.tmcexporter.metric.common.Dimension;
 import me.fallenbreath.tmcexporter.metric.common.TileTickKey;
 import me.fallenbreath.tmcexporter.metric.common.TileTickType;
 import me.fallenbreath.tmcexporter.metric.exporter.MetricExporter;
-import me.fallenbreath.tmcexporter.mixins.access.ThreadedAnvilChunkStorageAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.ChunkAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.WorldAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.ServerEntityManagerAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.ServerWorldAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.ChunkTickSchedulerAccessor;
-import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.WorldTickSchedulerAccessor;
+import me.fallenbreath.tmcexporter.mixins.access.ChunkMapAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.ChunkAccessAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.blockentity.LevelAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.PersistentEntitySectionManagerAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.entity.ServerLevelAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.LevelChunkTicksAccessor;
+import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.LevelTicksAccessor;
 import me.fallenbreath.tmcexporter.utils.BlockEntityUtils;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -155,7 +155,7 @@ public class MetricCollector
 	{
 		ChunkMap tacs = world.getChunkSource().chunkMap;
 		List<LevelChunk> loadedChunks = Lists.newArrayList();
-		for (ChunkHolder chunkHolder : ((ThreadedAnvilChunkStorageAccessor)tacs).getUpdatingChunkMap().values())
+		for (ChunkHolder chunkHolder : ((ChunkMapAccessor)tacs).getUpdatingChunkMap().values())
 		{
 			LevelChunk chunk = chunkHolder.getTickingChunk();
 			if (chunk != null)
@@ -169,9 +169,9 @@ public class MetricCollector
 
 		for (TileTickType tileTickType : TileTickType.values())
 		{
-			for (LevelChunkTicks<?> cts : ((WorldTickSchedulerAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getAllContainers().values())
+			for (LevelChunkTicks<?> cts : ((LevelTicksAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getAllContainers().values())
 			{
-				ChunkTickSchedulerAccessor<?> ctsAccess = (ChunkTickSchedulerAccessor<?>)cts;
+				LevelChunkTicksAccessor<?> ctsAccess = (LevelChunkTicksAccessor<?>)cts;
 				List<? extends SavedTick<?>> ticks = ctsAccess.getPendingTicks();
 				Queue<? extends ScheduledTick<?>> tickQueue = ctsAccess.getTickQueue();
 				if (ticks != null)
@@ -192,7 +192,7 @@ public class MetricCollector
 		}
 
 		@SuppressWarnings("unchecked")
-		EntitySectionStorage<Entity> entityCache = ((ServerEntityManagerAccessor<Entity>)((ServerWorldAccessor)world).getEntityManager()).getSectionStorage();
+		EntitySectionStorage<Entity> entityCache = ((PersistentEntitySectionManagerAccessor<Entity>)((ServerLevelAccessor)world).getEntityManager()).getSectionStorage();
 		for (Long chunkPosLong : entityCache.getAllChunksWithExistingSections())
 		{
 			entityCache.getExistingSectionsInChunk(chunkPosLong).forEach(section -> {
@@ -211,7 +211,7 @@ public class MetricCollector
 
 		for (LevelChunk chunk : loadedChunks)
 		{
-			for (BlockEntity blockEntity : ((ChunkAccessor)chunk).getBlockEntities().values())
+			for (BlockEntity blockEntity : ((ChunkAccessAccessor)chunk).getBlockEntities().values())
 			{
 				stats.tileEntity.access(
 						IdentifierUtils.of(blockEntity.getType()),
@@ -219,7 +219,7 @@ public class MetricCollector
 				);
 			}
 		}
-		((WorldAccessor)world).getBlockEntityTickers().forEach(ticker -> {
+		((LevelAccessor)world).getBlockEntityTickers().forEach(ticker -> {
 			BlockEntity blockEntity = BlockEntityUtils.getBlockEntityFromTickInvoker(ticker);
 			if (blockEntity != null)
 			{
