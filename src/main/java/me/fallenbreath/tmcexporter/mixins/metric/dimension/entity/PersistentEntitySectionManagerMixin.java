@@ -43,11 +43,11 @@ public abstract class PersistentEntitySectionManagerMixin<T extends EntityAccess
 					target = "Lnet/minecraft/world/level/entity/EntitySection;add(Lnet/minecraft/world/level/entity/EntityAccess;)V"
 			)
 	)
-	private void countEntityAdd(CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) T entityLike)
+	private void countEntityAdd(CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) T entityAccess)
 	{
-		if (entityLike instanceof Entity)
+		if (entityAccess instanceof Entity)
 		{
-			Entity entity = (Entity)entityLike;
+			Entity entity = (Entity)entityAccess;
 			Level world = entity.getCommandSenderWorld();
 			if (world instanceof ServerLevel)
 			{

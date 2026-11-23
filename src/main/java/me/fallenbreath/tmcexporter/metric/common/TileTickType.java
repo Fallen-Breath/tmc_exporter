@@ -31,16 +31,16 @@ public enum TileTickType
 	FLUID(ServerLevel::getFluidTicks),
 	;
 
-	private final Function<ServerLevel, LevelTicks<?>> schedulerGetter;
+	private final Function<ServerLevel, LevelTicks<?>> levelTicksGetter;
 
-	TileTickType(Function<ServerLevel, LevelTicks<?>> schedulerGetter)
+	TileTickType(Function<ServerLevel, LevelTicks<?>> levelTicksGetter)
 	{
-		this.schedulerGetter = schedulerGetter;
+		this.levelTicksGetter = levelTicksGetter;
 	}
 
-	public LevelTicks<?> getSchedulerFromWorld(ServerLevel world)
+	public LevelTicks<?> getLevelTicks(ServerLevel world)
 	{
-		return this.schedulerGetter.apply(world);
+		return this.levelTicksGetter.apply(world);
 	}
 
 	@Override

@@ -33,15 +33,15 @@ public class BlockEntityUtils
 	 * for mc 1.17+
 	 */
 	@Nullable
-	public static BlockEntity getBlockEntityFromTickInvoker(TickingBlockEntity blockEntityTickInvoker)
+	public static BlockEntity getBlockEntityFromTicker(TickingBlockEntity ticker)
 	{
-		if (blockEntityTickInvoker instanceof BoundTickingBlockEntityAccessor)
+		if (ticker instanceof BoundTickingBlockEntityAccessor)
 		{
-			return ((BoundTickingBlockEntityAccessor<?>) blockEntityTickInvoker).getBlockEntity();
+			return ((BoundTickingBlockEntityAccessor<?>) ticker).getBlockEntity();
 		}
-		else if (blockEntityTickInvoker instanceof RebindableTickingBlockEntityWrapperAccessor)
+		else if (ticker instanceof RebindableTickingBlockEntityWrapperAccessor)
 		{
-			return getBlockEntityFromTickInvoker(((RebindableTickingBlockEntityWrapperAccessor<?>)blockEntityTickInvoker).getTicker());
+			return getBlockEntityFromTicker(((RebindableTickingBlockEntityWrapperAccessor<?>)ticker).getTicker());
 		}
 		return null;
 	}

@@ -41,18 +41,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LevelTicksMixin<T> implements ServerLevelAssociated
 {
 	@Unique
-	private ServerLevel serverWorld$TMCE;
+	private ServerLevel serverLevel$TMCE;
 
 	@Override
-	public void setServerWorld$TMCE(ServerLevel world)
+	public void setServerLevel$TMCE(ServerLevel world)
 	{
-		this.serverWorld$TMCE = world;
+		this.serverLevel$TMCE = world;
 	}
 
 	@Override
-	public ServerLevel getServerWorld$TMCE()
+	public ServerLevel getServerLevel$TMCE()
 	{
-		return this.serverWorld$TMCE;
+		return this.serverLevel$TMCE;
 	}
 
 	@ModifyVariable(
@@ -64,7 +64,7 @@ public abstract class LevelTicksMixin<T> implements ServerLevelAssociated
 	)
 	private ScheduledTick<T> countTileTickTicked(ScheduledTick<T> t)
 	{
-		MetricCollector.getDimStats(this.serverWorld$TMCE).ifPresent(ds -> {
+		MetricCollector.getDimStats(this.serverLevel$TMCE).ifPresent(ds -> {
 			TileTickKey key = TileTickKey.ofTileTickObject(t.type());
 			if (key != null)
 			{
@@ -83,11 +83,11 @@ public abstract class LevelTicksMixin<T> implements ServerLevelAssociated
 	)
 	private void startScheduleTileTickEvent(
 			CallbackInfo ci,
-			@Local LevelChunkTicks<T> chunkTickScheduler,
-			@Share("oldListSize") LocalIntRef oldListSize
+			@Local LevelChunkTicks<T> chunkTicks,
+			@Share("tickCountBeforeSchedule") LocalIntRef tickCountBeforeSchedule
 	)
 	{
-		oldListSize.set(chunkTickScheduler.count());
+		tickCountBeforeSchedule.set(chunkTicks.count());
 	}
 
 	@Inject(
@@ -101,16 +101,16 @@ public abstract class LevelTicksMixin<T> implements ServerLevelAssociated
 	private void endScheduleTileTickEvent(
 			CallbackInfo ci,
 			@Local(argsOnly = true) ScheduledTick<T> t,
-			@Local LevelChunkTicks<T> chunkTickScheduler,
-			@Share("oldListSize") LocalIntRef oldListSize
+			@Local LevelChunkTicks<T> chunkTicks,
+			@Share("tickCountBeforeSchedule") LocalIntRef tickCountBeforeSchedule
 	)
 	{
-		MetricCollector.getDimStats(this.serverWorld$TMCE).ifPresent(ds -> {
+		MetricCollector.getDimStats(this.serverLevel$TMCE).ifPresent(ds -> {
 			TileTickKey key = TileTickKey.ofTileTickObject(t.type());
 			if (key != null)
 			{
 				ds.tileTick.access(key, v -> {
-					boolean success = chunkTickScheduler.count() > oldListSize.get();
+					boolean success = chunkTicks.count() > tickCountBeforeSchedule.get();
 					if (success)
 					{
 						v.schedule_succeeded++;

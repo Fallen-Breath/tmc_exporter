@@ -28,11 +28,11 @@ import net.minecraft.network.protocol.PacketType;
 public class NetworkUtils
 {
 	@SuppressWarnings("rawtypes")
-	public static int getPacketId(ProtocolInfo<?> state, PacketType<?> packetType)
+	public static int getPacketId(ProtocolInfo<?> protocolInfo, PacketType<?> packetType)
 	{
-		if (state.codec() instanceof IdDispatchCodec)
+		if (protocolInfo.codec() instanceof IdDispatchCodec)
 		{
-			return ((IdDispatchCodecAccessor)state.codec()).getTypeToIndex$TMCE().getInt(packetType);
+			return ((IdDispatchCodecAccessor)protocolInfo.codec()).getTypeToId$TMCE().getInt(packetType);
 		}
 		return 0;
 	}

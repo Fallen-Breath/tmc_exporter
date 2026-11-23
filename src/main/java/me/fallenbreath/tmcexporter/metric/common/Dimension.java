@@ -35,21 +35,21 @@ import net.minecraft.resources.ResourceKey;
 public class Dimension
 {
 	//#if MC >= 11600
-	private final ResourceKey<Level> dimensionType;
+	private final ResourceKey<Level> dimension;
 	//#else
-	//$$ private final DimensionType dimensionType;
+	//$$ private final DimensionType dimension;
 	//#endif
 
 
 	private Dimension(
 			//#if MC >= 11600
-			ResourceKey<Level> dimensionType
+			ResourceKey<Level> dimension
 			//#else
-			//$$ DimensionType dimensionType
+			//$$ DimensionType dimension
 			//#endif
 	)
 	{
-		this.dimensionType = dimensionType;
+		this.dimension = dimension;
 	}
 
 	public static Dimension of(Level world)
@@ -65,13 +65,13 @@ public class Dimension
 
 	public static Dimension of(
 			//#if MC >= 11600
-			ResourceKey<Level> dimensionType
+			ResourceKey<Level> dimension
 			//#else
-			//$$ DimensionType dimensionType
+			//$$ DimensionType dimension
 			//#endif
 	)
 	{
-		return new Dimension(dimensionType);
+		return new Dimension(dimension);
 	}
 
 	public static Dimension of(Entity entity)
@@ -82,9 +82,9 @@ public class Dimension
 	public ResourceLocation getIdentifier()
 	{
 		//#if MC >= 11600
-		return this.dimensionType.location();
+		return this.dimension.location();
 		//#else
-		//$$ return DimensionType.getName(this.dimensionType);
+		//$$ return DimensionType.getName(this.dimension);
 		//#endif
 	}
 
@@ -94,13 +94,13 @@ public class Dimension
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Dimension that = (Dimension) o;
-		return Objects.equals(dimensionType, that.dimensionType);
+		return Objects.equals(dimension, that.dimension);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return this.dimensionType.hashCode();
+		return this.dimension.hashCode();
 	}
 
 	@Override

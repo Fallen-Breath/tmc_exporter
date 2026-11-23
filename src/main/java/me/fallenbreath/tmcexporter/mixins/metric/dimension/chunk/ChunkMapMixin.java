@@ -46,7 +46,7 @@ public abstract class ChunkMapMixin
 					remap = false
 			)
 	)
-	private void countChunkLoad(CallbackInfoReturnable<ChunkHolder> cir)
+	private void countChunkHolderAdded(CallbackInfoReturnable<ChunkHolder> cir)
 	{
 		MetricCollector.getDimStats(this.level).ifPresent(ds -> ds.chunk.added++);
 	}
@@ -58,7 +58,7 @@ public abstract class ChunkMapMixin
 					target = "Lnet/minecraft/server/level/ChunkMap;scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"
 			)
 	)
-	private void countChunkUnload(CallbackInfo ci)
+	private void countChunkHolderRemoved(CallbackInfo ci)
 	{
 		MetricCollector.getDimStats(this.level).ifPresent(ds -> ds.chunk.removed++);
 	}

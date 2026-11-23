@@ -153,27 +153,27 @@ public class MetricCollector
 
 	private void fillDimensionStats(ServerLevel world, DimensionStats stats)
 	{
-		ChunkMap tacs = world.getChunkSource().chunkMap;
-		List<LevelChunk> loadedChunks = Lists.newArrayList();
-		for (ChunkHolder chunkHolder : ((ChunkMapAccessor)tacs).getUpdatingChunkMap().values())
+		ChunkMap chunkMap = world.getChunkSource().chunkMap;
+		List<LevelChunk> tickingChunks = Lists.newArrayList();
+		for (ChunkHolder chunkHolder : ((ChunkMapAccessor)chunkMap).getUpdatingChunkMap().values())
 		{
 			LevelChunk chunk = chunkHolder.getTickingChunk();
 			if (chunk != null)
 			{
-				loadedChunks.add(chunk);
+				tickingChunks.add(chunk);
 			}
 
-			ChunkStatus status = ChunkStatus.fromLevel(chunkHolder.getTicketLevel());
+			ChunkStatus status = ChunkStatus.fromTicketLevel(chunkHolder.getTicketLevel());
 			stats.chunk.loaded.put(status, stats.chunk.loaded.getOrDefault(status, 0) + 1);
 		}
 
 		for (TileTickType tileTickType : TileTickType.values())
 		{
-			for (LevelChunkTicks<?> cts : ((LevelTicksAccessor<?>)tileTickType.getSchedulerFromWorld(world)).getAllContainers().values())
+			for (LevelChunkTicks<?> chunkTicks : ((LevelTicksAccessor<?>)tileTickType.getLevelTicks(world)).getAllContainers().values())
 			{
-				LevelChunkTicksAccessor<?> ctsAccess = (LevelChunkTicksAccessor<?>)cts;
-				List<? extends SavedTick<?>> ticks = ctsAccess.getPendingTicks();
-				Queue<? extends ScheduledTick<?>> tickQueue = ctsAccess.getTickQueue();
+				LevelChunkTicksAccessor<?> chunkTicksAccessor = (LevelChunkTicksAccessor<?>)chunkTicks;
+				List<? extends SavedTick<?>> ticks = chunkTicksAccessor.getPendingTicks();
+				Queue<? extends ScheduledTick<?>> tickQueue = chunkTicksAccessor.getTickQueue();
 				if (ticks != null)
 				{
 					for (SavedTick<?> t : ticks)
@@ -192,10 +192,10 @@ public class MetricCollector
 		}
 
 		@SuppressWarnings("unchecked")
-		EntitySectionStorage<Entity> entityCache = ((PersistentEntitySectionManagerAccessor<Entity>)((ServerLevelAccessor)world).getEntityManager()).getSectionStorage();
-		for (Long chunkPosLong : entityCache.getAllChunksWithExistingSections())
+		EntitySectionStorage<Entity> entitySectionStorage = ((PersistentEntitySectionManagerAccessor<Entity>)((ServerLevelAccessor)world).getEntityManager()).getSectionStorage();
+		for (Long chunkPosLong : entitySectionStorage.getAllChunksWithExistingSections())
 		{
-			entityCache.getExistingSectionsInChunk(chunkPosLong).forEach(section -> {
+			entitySectionStorage.getExistingSectionsInChunk(chunkPosLong).forEach(section -> {
 				section.getEntities().forEach(entity -> {
 					ResourceLocation eId = IdentifierUtils.of(entity.getType());
 					stats.entity.access(eId, es -> {
@@ -209,7 +209,7 @@ public class MetricCollector
 			});
 		}
 
-		for (LevelChunk chunk : loadedChunks)
+		for (LevelChunk chunk : tickingChunks)
 		{
 			for (BlockEntity blockEntity : ((ChunkAccessAccessor)chunk).getBlockEntities().values())
 			{
@@ -220,7 +220,7 @@ public class MetricCollector
 			}
 		}
 		((LevelAccessor)world).getBlockEntityTickers().forEach(ticker -> {
-			BlockEntity blockEntity = BlockEntityUtils.getBlockEntityFromTickInvoker(ticker);
+			BlockEntity blockEntity = BlockEntityUtils.getBlockEntityFromTicker(ticker);
 			if (blockEntity != null)
 			{
 				stats.tileEntity.access(

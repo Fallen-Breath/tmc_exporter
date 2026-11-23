@@ -42,7 +42,7 @@ public abstract class ServerLevelMixin
 	private void associateSelfToTickSchedulers(CallbackInfo ci)
 	{
 		ServerLevel self = (ServerLevel)(Object)this;
-		((ServerLevelAssociated)this.blockTicks).setServerWorld$TMCE(self);
-		((ServerLevelAssociated)this.fluidTicks).setServerWorld$TMCE(self);
+		((ServerLevelAssociated)this.blockTicks).setServerLevel$TMCE(self);
+		((ServerLevelAssociated)this.fluidTicks).setServerLevel$TMCE(self);
 	}
 }

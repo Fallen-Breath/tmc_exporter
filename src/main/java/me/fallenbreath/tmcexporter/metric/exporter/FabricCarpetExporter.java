@@ -32,23 +32,23 @@ public class FabricCarpetExporter
 		FabricCarpetMetrics.HOPPER_COUNTER.labelValues(color).inc(stack.getCount());
 	}
 
-	public static void recordSpawnRecorderSpawnTicksFullAdd(Dimension dimension, MobCategory spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksFullAdd(Dimension dimension, MobCategory mobCategory, long delta)
 	{
-		FabricCarpetMetrics.SPAWN_TICK_FULL.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
+		FabricCarpetMetrics.SPAWN_TICK_FULL.labelValues(dimension.toString(), mobCategory.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksFailAdd(Dimension dimension, MobCategory spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksFailAdd(Dimension dimension, MobCategory mobCategory, long delta)
 	{
-		FabricCarpetMetrics.SPAWN_TICK_FAIL.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
+		FabricCarpetMetrics.SPAWN_TICK_FAIL.labelValues(dimension.toString(), mobCategory.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksSuccAdd(Dimension dimension, MobCategory spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksSuccAdd(Dimension dimension, MobCategory mobCategory, long delta)
 	{
-		FabricCarpetMetrics.SPAWN_TICK_SUCC.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
+		FabricCarpetMetrics.SPAWN_TICK_SUCC.labelValues(dimension.toString(), mobCategory.getName()).inc(delta);
 	}
 
-	public static void recordSpawnRecorderSpawnTicksSpawnsAdd(Dimension dimension, MobCategory spawnGroup, long delta)
+	public static void recordSpawnRecorderSpawnTicksSpawnsAdd(Dimension dimension, MobCategory mobCategory, long delta)
 	{
-		FabricCarpetMetrics.SPAWN_TICK_SPAWN.labelValues(dimension.toString(), spawnGroup.getName()).inc(delta);
+		FabricCarpetMetrics.SPAWN_TICK_SPAWN.labelValues(dimension.toString(), mobCategory.getName()).inc(delta);
 	}
 }

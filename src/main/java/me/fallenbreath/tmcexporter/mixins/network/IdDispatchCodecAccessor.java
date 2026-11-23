@@ -30,5 +30,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface IdDispatchCodecAccessor<B extends ByteBuf, V, T>
 {
 	@Accessor("toId")
-	Object2IntMap<T> getTypeToIndex$TMCE();
+	Object2IntMap<T> getTypeToId$TMCE();
 }

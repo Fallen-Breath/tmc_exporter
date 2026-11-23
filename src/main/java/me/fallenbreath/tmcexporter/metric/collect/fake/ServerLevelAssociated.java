@@ -24,7 +24,7 @@ import net.minecraft.server.level.ServerLevel;
 
 public interface ServerLevelAssociated
 {
-	void setServerWorld$TMCE(ServerLevel world);
+	void setServerLevel$TMCE(ServerLevel world);
 
-	ServerLevel getServerWorld$TMCE();
+	ServerLevel getServerLevel$TMCE();
 }

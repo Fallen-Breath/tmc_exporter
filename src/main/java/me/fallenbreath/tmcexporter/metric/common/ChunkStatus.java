@@ -33,17 +33,17 @@ public enum ChunkStatus
 		return this.name().toLowerCase();
 	}
 
-	public static ChunkStatus fromLevel(int level)
+	public static ChunkStatus fromTicketLevel(int ticketLevel)
 	{
-		if (level <= 31)
+		if (ticketLevel <= 31)
 		{
 			return ENTITY_TICKING;
 		}
-		else if (level <= 32)
+		else if (ticketLevel <= 32)
 		{
 			return BLOCK_TICKING;
 		}
-		else if (level <= 33)
+		else if (ticketLevel <= 33)
 		{
 			return BORDER;
 		}
