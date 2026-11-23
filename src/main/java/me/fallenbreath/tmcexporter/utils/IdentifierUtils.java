@@ -20,12 +20,12 @@
 
 package me.fallenbreath.tmcexporter.utils;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
 
 public class IdentifierUtils
 {

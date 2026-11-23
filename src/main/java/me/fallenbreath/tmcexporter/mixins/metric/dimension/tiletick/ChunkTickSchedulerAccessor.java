@@ -21,8 +21,8 @@
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
 import net.minecraft.world.ticks.LevelChunkTicks;
-import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.ticks.SavedTick;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

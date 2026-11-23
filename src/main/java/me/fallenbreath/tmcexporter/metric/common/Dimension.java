@@ -20,8 +20,8 @@
 
 package me.fallenbreath.tmcexporter.metric.common;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;

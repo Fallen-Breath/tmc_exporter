@@ -25,8 +25,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import me.fallenbreath.tmcexporter.metric.collect.stats.server.NetworkStats;
-import net.minecraft.network.VarInt;
 import net.minecraft.network.CompressionDecoder;
+import net.minecraft.network.VarInt;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

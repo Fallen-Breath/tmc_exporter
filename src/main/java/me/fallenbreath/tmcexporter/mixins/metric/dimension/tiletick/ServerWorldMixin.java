@@ -21,9 +21,9 @@
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick;
 
 import me.fallenbreath.tmcexporter.metric.collect.fake.ServerWorldAssociated;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ticks.LevelTicks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

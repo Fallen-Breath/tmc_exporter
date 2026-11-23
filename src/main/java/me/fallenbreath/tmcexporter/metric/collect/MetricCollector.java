@@ -39,20 +39,20 @@ import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.ChunkTickSch
 import me.fallenbreath.tmcexporter.mixins.metric.dimension.tiletick.WorldTickSchedulerAccessor;
 import me.fallenbreath.tmcexporter.utils.BlockEntityUtils;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.entity.Visibility;
 import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.level.entity.Visibility;
 import net.minecraft.world.ticks.LevelChunkTicks;
-import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.ticks.SavedTick;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.management.ManagementFactory;

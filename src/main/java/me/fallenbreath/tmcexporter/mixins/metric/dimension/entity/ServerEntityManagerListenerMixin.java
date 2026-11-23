@@ -22,8 +22,8 @@ package me.fallenbreath.tmcexporter.mixins.metric.dimension.entity;
 
 import me.fallenbreath.tmcexporter.metric.collect.MetricCollector;
 import me.fallenbreath.tmcexporter.utils.IdentifierUtils;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityAccess;
 import org.spongepowered.asm.mixin.Final;

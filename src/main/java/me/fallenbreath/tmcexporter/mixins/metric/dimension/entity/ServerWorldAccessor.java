@@ -20,9 +20,9 @@
 
 package me.fallenbreath.tmcexporter.mixins.metric.dimension.entity;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
-import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
